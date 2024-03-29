@@ -15,8 +15,9 @@ const getAllUser = ()=> {
     return dbConnection.execute(query);
  }
 
+
  module.exports = {
     getAllUser,
     getSingleUser,
-    getRentPsSingleUser
+    getRentPsSingleUser,
  }

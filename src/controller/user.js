@@ -70,9 +70,8 @@ const getRentPsSingleUser = async (req,response)=> {
     }
 }
 
-
 module.exports = {
     getALlUser,
     getSingleUser,
-    getRentPsSingleUser
+    getRentPsSingleUser,
 }
