@@ -20,7 +20,7 @@ const getRentPsAllUser =async (req,response)=> {
             tanggal_kembali: data[index].tanggal_kembali,
             harga: Math.abs(data[index].tanggal_kembali - data[index].tanggal_sewa) * data[index].harga_sewa
         })
-        if (dataResponse.length == 2 || index+1 >= data.length) {
+        if (dataResponse.length == 25 || index+1 >= data.length) {
             dataResponseFinal.push(dataResponse);
             dataResponse = [];
         }

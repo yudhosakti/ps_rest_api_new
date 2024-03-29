@@ -2,11 +2,44 @@ const { response } = require('express');
 const itemModel = require('../models/item');
 
 const getAllItem = async(req,response)=>{
+    const {page} = req.params;
     try {
     const [data] = await itemModel.getAllItem();
-    response.json({
-    data: data
-     })
+    let dataFinal = [];
+    let dataTemp = [];
+    for (let index = 0; index < data.length; index++) {
+        dataTemp.push(data[index]);
+        if (dataTemp.length == 25 || index+1>=data.length) {
+            dataFinal.push(dataTemp);
+            dataTemp = [];
+        }
+        
+    }
+    if (page == undefined) {
+        response.json({
+            paginate: ({
+                max_page : dataFinal.length,
+                current_page : 1,
+                total_item_page : dataFinal[0].length
+            }),
+            data: dataFinal[0]
+        })
+    } else {
+      if (page <=0 || page > dataFinal.length || !Number.isInteger(page)) {
+          response.status(500).json({
+            message: 'Data Not Found'
+          })
+      } else {
+        response.json({
+            paginate: ({
+                max_page : dataFinal.length,
+                current_page : page,
+                total_item_page : dataFinal[page-1].length
+            }),
+            data: dataFinal[page-1] 
+        })
+     }
+    }
     } catch (error) {
         response.status(500).json({
             message : error
