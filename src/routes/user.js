@@ -10,5 +10,7 @@ router.get('/rent/:id',userController.getRentPsSingleUser);
 
 router.post('/',userController.createNewUser);
 
+router.delete('/:id',userController.deleteSingleUser);
+
 module.exports = router;
 

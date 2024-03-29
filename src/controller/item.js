@@ -53,6 +53,22 @@ const createItem = async(req,response)=> {
     }
 }
 
+const deleteItem = async(req,response) => {
+    const {id} = req.params;
+    try {
+        await itemModel.deleteItem(id).then(()=> {
+            response.json({
+                message: 'Delete Item Success',
+                id_deleted: id
+            })
+        })
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
 
 
 
@@ -99,5 +115,6 @@ const createItem = async(req,response)=> {
 module.exports = {
     getAllItem,
     getSingleItem,
-    createItem
+    createItem,
+    deleteItem
 }

@@ -110,10 +110,27 @@ const createNewRent = async (req,response)=> {
     }
 }
 
+const deleteRent = async (req,response)=> {
+    const {id} = req.params;
+    try {
+        await rentModel.deleteRent(id).then(()=> {
+            response.json({
+                message: 'Delete Rent Success',
+                id_delete: id
+            })
+        })
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
 
 
 module.exports = {
     getRentPsAllUser,
     getRentSingle,
-    createNewRent
+    createNewRent,
+    deleteRent
 }

@@ -24,5 +24,6 @@ const deleteRent = (id) => {
 module.exports = {
     getAllRent,
     getSingleRent,
-    insertRent
+    insertRent,
+    deleteRent
 }

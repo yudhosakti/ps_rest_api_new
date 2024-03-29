@@ -15,8 +15,14 @@ const createItem = (name,image,tipe,deskripsi,stock,harga)=> {
     return dbConnection.execute(query);
 }
 
+const deleteItem = (id) => {
+    const query =  `DELETE FROM tbl_barang WHERE tbl_barang.id_barang=${id}`;
+    return dbConnection.execute(query)
+}
+
 module.exports = {
     getAllItem,
     getSingleItem,
-    createItem
+    createItem,
+    deleteItem
 }

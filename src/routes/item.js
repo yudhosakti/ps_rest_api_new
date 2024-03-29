@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/',itemController.getAllItem);
 router.get('/:id',itemController.getSingleItem);
 router.post('/',itemController.createItem);
+router.delete('/:id',itemController.deleteItem);
 
 
 

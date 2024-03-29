@@ -87,10 +87,26 @@ const createNewUser =async (req,response) => {
     }
     
 }
+const deleteSingleUser = async (req,response) => {
+    const {id} = req.params;
+    try {
+        await userModel.deleteUser(id).then(()=> {
+            response.json({
+                message: "Delete Success",
+                id_deleted: id
+            })
+        })
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
 
 module.exports = {
     getALlUser,
     getSingleUser,
     getRentPsSingleUser,
-    createNewUser
+    createNewUser,
+    deleteSingleUser
 }
