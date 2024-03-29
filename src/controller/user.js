@@ -70,8 +70,27 @@ const getRentPsSingleUser = async (req,response)=> {
     }
 }
 
+const createNewUser =async (req,response) => {
+    const dataInsert = req.body;
+    try {
+      await userModel.createUser(dataInsert.uid,dataInsert.email,dataInsert.name).then(()=> {
+        response.json({
+            message: "Data Inserted",
+            data: req.body
+          })
+      })
+      
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+    
+}
+
 module.exports = {
     getALlUser,
     getSingleUser,
     getRentPsSingleUser,
+    createNewUser
 }

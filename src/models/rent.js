@@ -10,8 +10,19 @@ const getSingleRent = (id)=> {
     return dbConnection.execute(query);
 }
 
+const insertRent = (idBarang,idUser,status,tanggal_sewa,tanggal_kembali)=> {
+    const query = `INSERT INTO tbl_penyewaan(id_barang,id_user,status,tanggal_sewa,tanggal_kembali) VALUES (${idBarang},'${idUser}','${status}','${tanggal_sewa}','${tanggal_kembali}')`;
+    return dbConnection.execute(query);
+}
+
+const deleteRent = (id) => {
+    const query = `DELETE FROM tbl_penyewaan WHERE tbl_penyewaan.id_sewa=${id}`;
+    return dbConnection.execute(query);
+}
+
 
 module.exports = {
     getAllRent,
-    getSingleRent
+    getSingleRent,
+    insertRent
 }

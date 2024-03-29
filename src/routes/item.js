@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/',itemController.getAllItem);
 router.get('/:id',itemController.getSingleItem);
+router.post('/',itemController.createItem);
 
 
 

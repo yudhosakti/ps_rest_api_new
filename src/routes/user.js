@@ -8,5 +8,7 @@ router.get('/:id',userController.getSingleUser);
 
 router.get('/rent/:id',userController.getRentPsSingleUser);
 
+router.post('/',userController.createNewUser);
+
 module.exports = router;
 

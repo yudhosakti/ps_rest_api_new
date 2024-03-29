@@ -94,9 +94,26 @@ const getRentSingle = async (req,response)=> {
     
 }
 
+const createNewRent = async (req,response)=> {
+    const data = req.body;
+    try {
+        await rentModel.insertRent(data.id_barang,data.id_user,data.status,data.tanggal_sewa,data.tanggal_kembali).then(()=> {
+            response.json({
+                message: "Rent Success",
+                data: req.body
+            })
+        })
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
 
 
 module.exports = {
     getRentPsAllUser,
-    getRentSingle
+    getRentSingle,
+    createNewRent
 }

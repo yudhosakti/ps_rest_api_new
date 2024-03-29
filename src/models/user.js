@@ -15,9 +15,21 @@ const getAllUser = ()=> {
     return dbConnection.execute(query);
  }
 
+ const createUser = (uid,email,name)=> {
+    const query = `INSERT INTO tbl_user (id_user,email,name) VALUES ('${uid}','${email}','${name}')`;
+    return dbConnection.execute(query);
+ }
+
+ const deleteUser = (uid) => {
+    const query = `DELETE FROM tbl_user WHERE tbl_user.id_user='${uid}'`
+    return dbConnection.execute(query);
+ }
+
 
  module.exports = {
     getAllUser,
     getSingleUser,
     getRentPsSingleUser,
+    createUser,
+    deleteUser
  }

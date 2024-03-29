@@ -37,6 +37,24 @@ const getSingleItem = async(req,response)=> {
     
 }
 
+const createItem = async(req,response)=> {
+    const dataInsert = req.body;
+    try {
+      await itemModel.createItem(dataInsert.name,dataInsert.image,dataInsert.tipe,dataInsert.deskripsi,dataInsert.stock,dataInsert.harga).then(()=> {
+        response.json({
+            message: 'Data Inserted',
+            data: dataInsert
+        })
+      })
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        })   
+    }
+}
+
+
+
 
 
 
@@ -80,5 +98,6 @@ const getSingleItem = async(req,response)=> {
 
 module.exports = {
     getAllItem,
-    getSingleItem
+    getSingleItem,
+    createItem
 }
