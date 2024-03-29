@@ -25,11 +25,17 @@ const getAllUser = ()=> {
     return dbConnection.execute(query);
  }
 
+const updateUser = (uid,name)=> {
+    const query =   `UPDATE tbl_user SET name='${name}' WHERE tbl_user.id_user='${uid}'`;
+    return dbConnection.execute(query);
+}
+
 
  module.exports = {
     getAllUser,
     getSingleUser,
     getRentPsSingleUser,
     createUser,
-    deleteUser
+    deleteUser,
+    updateUser
  }

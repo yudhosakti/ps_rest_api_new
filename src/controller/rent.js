@@ -1,3 +1,4 @@
+const { response } = require('express');
 const rentModel = require('../models/rent')
 
 const getRentPsAllUser =async (req,response)=> {
@@ -126,11 +127,30 @@ const deleteRent = async (req,response)=> {
     }
 }
 
+const updateRent = async (req,response) => {
+    const {id} = req.params;
+    const dataUpdate = req.body;
+    try {
+        await rentModel.updateRent(id,dataUpdate.status).then(()=> {
+            response.json({
+                message: 'Update Rent Success',
+                id_updated: id,
+                status_update: dataUpdate
+            })
+        })
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
 
 
 module.exports = {
     getRentPsAllUser,
     getRentSingle,
     createNewRent,
-    deleteRent
+    deleteRent,
+    updateRent
 }

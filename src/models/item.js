@@ -17,12 +17,18 @@ const createItem = (name,image,tipe,deskripsi,stock,harga)=> {
 
 const deleteItem = (id) => {
     const query =  `DELETE FROM tbl_barang WHERE tbl_barang.id_barang=${id}`;
-    return dbConnection.execute(query)
+    return dbConnection.execute(query);
+}
+
+const updateItem = (id,name,image,tipe,deskripsi,stock,harga) => {
+    const query =  `UPDATE tbl_barang SET nama_barang='${name}',gambar_barang='${image}',jenis_barang='${tipe}',deskripsi_barang='${deskripsi}',stock=${stock},harga_sewa=${harga} WHERE tbl_barang.id_barang=${id}`;
+    return dbConnection.execute(query);
 }
 
 module.exports = {
     getAllItem,
     getSingleItem,
     createItem,
-    deleteItem
+    deleteItem,
+    updateItem
 }

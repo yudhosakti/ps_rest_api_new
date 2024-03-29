@@ -1,3 +1,4 @@
+const { response } = require('express');
 const itemModel = require('../models/item');
 
 const getAllItem = async(req,response)=>{
@@ -69,6 +70,24 @@ const deleteItem = async(req,response) => {
     }
 }
 
+const updateItem = async(req,response) => {
+    const {id} = req.params;
+    const dataUpdate = req.body;
+    try {
+        await itemModel.updateItem(id,dataUpdate.name,dataUpdate.image,dataUpdate.tipe,dataUpdate.deskripsi,dataUpdate.stock,dataUpdate.harga).then(()=> {
+            response.json({
+                message: 'Update Item Success',
+                id_updated : id,
+                data: dataUpdate
+            })
+        })
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
 
 
 
@@ -116,5 +135,6 @@ module.exports = {
     getAllItem,
     getSingleItem,
     createItem,
-    deleteItem
+    deleteItem,
+    updateItem
 }

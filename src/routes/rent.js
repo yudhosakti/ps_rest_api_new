@@ -7,5 +7,6 @@ router.get('/:page',rentController.getRentPsAllUser);
 router.get('/single/:id',rentController.getRentSingle);
 router.post('/',rentController.createNewRent);
 router.delete('/:id',rentController.deleteRent);
+router.put('/:id',rentController.updateRent);
 
 module.exports = router;

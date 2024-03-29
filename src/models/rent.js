@@ -20,10 +20,16 @@ const deleteRent = (id) => {
     return dbConnection.execute(query);
 }
 
+const updateRent = (id,status) => {
+    const query = `UPDATE tbl_penyewaan SET status='${status}' WHERE tbl_penyewaan.id_sewa = ${id}`;
+    return dbConnection.execute(query);
+}
+
 
 module.exports = {
     getAllRent,
     getSingleRent,
     insertRent,
-    deleteRent
+    deleteRent,
+    updateRent
 }
