@@ -30,7 +30,7 @@ const getALlUser =async (req,response)=> {
             data: dataFinal[0]
         })
     }else{
-        if (page <=0 || page > dataFinal.length) {
+        if (parseInt(page) <=0 || parseInt(page) > dataFinal.length) {
             response.status(500).json({
                 message: 'Data Not Found'
             })
@@ -38,10 +38,10 @@ const getALlUser =async (req,response)=> {
             response.json({
                 paginate: ({
                     max_page : dataFinal.length,
-                    current_page : page,
-                    total_item_page : dataFinal[page-1].length
+                    current_page : parseInt(page),
+                    total_item_page : dataFinal[parseInt(page)-1].length
                 }),
-                data: dataFinal[page-1]
+                data: dataFinal[parseInt(page)-1]
             })
         }
     }

@@ -36,7 +36,7 @@ const getRentPsAllUser =async (req,response)=> {
             data: dataResponseFinal[0]
          })
      }else{
-        if (page <= 0 || page> dataResponseFinal.length) {
+        if (parseInt(page) <= 0 || parseInt(page)> dataResponseFinal.length) {
             response.status(500).json({
                 message: "Data Not Found"
             })
@@ -44,10 +44,10 @@ const getRentPsAllUser =async (req,response)=> {
             response.json({
                 paginate: ({
                     max_page : dataResponseFinal.length,
-                    current_page : page,
-                    total_item_page : dataResponseFinal[page-1].length
+                    current_page : parseInt(page),
+                    total_item_page : dataResponseFinal[parseInt(page)-1].length
                 }),
-                data: dataResponseFinal[page-1]
+                data: dataResponseFinal[parseInt(page)-1]
              })
         }
         
