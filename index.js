@@ -4,7 +4,7 @@ const barangRoutes = require('./src/routes/item.js');
 const userRoutes = require('./src/routes/user.js');
 const rentRoutes = require('./src/routes/rent.js');
 
-const middleWare = require('../rest_api_ps/src/middleware/log.js');
+const middleWare = require('./src/middleware/log.js');
 
 const app = express();
 let port = 4000;
