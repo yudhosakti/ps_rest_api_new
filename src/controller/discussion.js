@@ -12,6 +12,7 @@ const getAllChatById =async (req,response)=> {
             id_user: data[index].id_user,
            nama_user: data[index].name,
            message:data[index].message,
+           is_update: data[index].is_update,
            send_at:data[index].send_at
          })
         
@@ -38,7 +39,7 @@ const getAllChatById =async (req,response)=> {
 const addChat = async(req,response)=> {
     const dataInsert = req.body;
     try {
-        await discussionModel.addChat(dataInsert.id_user,dataInsert.id_forum,dataInsert.message).then(()=> {
+        await discussionModel.addChat(dataInsert.id_user,dataInsert.id_forum,dataInsert.message,dataInsert.send_at).then(()=> {
             response.json({
                 message: 'Send Message Success',
                 data: dataInsert
@@ -55,7 +56,7 @@ const updateChat = async(req,response)=> {
     const dataInsert = req.body;
     const {id} = req.params;
     try {
-        await discussionModel.updateChat(id,dataInsert.message,dataInsert.send_at).then(()=> {
+        await discussionModel.updateChat(id,dataInsert.message,dataInsert.is_update).then(()=> {
             response.json({
                 message: 'Update Message Success',
                 data: dataInsert

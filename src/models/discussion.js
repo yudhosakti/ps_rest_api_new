@@ -10,8 +10,8 @@ const addChat = (idUser,idForum,message,send_at) => {
     return dbConnection.execute(query);
 }
 
-const updateChat = (id_chat,message,send_at)=>{
-    const query =  `UPDATE tbl_discussion SET message='${message}',send_at='${send_at}' WHERE tbl_discussion.id_chat = ${id_chat}`;
+const updateChat = (id_chat,message,is_update)=>{
+    const query =  `UPDATE tbl_discussion SET message='${message}',is_update='${is_update}' WHERE tbl_discussion.id_chat = ${id_chat}`;
     return dbConnection.execute(query);
 } 
 
