@@ -3,7 +3,7 @@ const forumModel = require('../models/forum')
 const getAllForum = async(req,response)=> {
     const {page} = req.params;
     try {
-        const data = await forumModel.getAllForum();
+        const [data] = await forumModel.getAllForum();
         let dataFinal = [];
         let dataTemp = [];
 
@@ -54,7 +54,7 @@ const getAllForum = async(req,response)=> {
 const getSingleForum = async(req,response)=> {
     const {id} = req.params;
     try {
-        const data = await forumModel.getSingleForum(id);
+        const [data] = await forumModel.getSingleForum(id);
         response.json({
             data: data[0]
         })
