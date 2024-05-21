@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 
 const barangRoutes = require('./src/routes/item.js');
 const userRoutes = require('./src/routes/user.js');
@@ -14,6 +15,7 @@ let port = 4000;
 
 app.use(middleWare.logRequest)
 app.use(express.json())
+app.use(cors())
 
 app.use('/item', barangRoutes)
 
