@@ -1,5 +1,6 @@
 const { response } = require('express');
 const itemModel = require('../models/item');
+const globalFunction = require('./data/global_function');
 
 const getAllItem = async(req,response)=>{
     const {page} = req.params;
@@ -49,17 +50,63 @@ const getAllItem = async(req,response)=>{
    
 }
 
-const getSingleItem = async(req,response)=> {
+const getSingleItemDetail = async(req,response)=> {
     try {
     const {id} = req.params;
     const [data] = await itemModel.getSingleItem(id);
+    const [dataRent] = await itemModel.getAllRentSingleItem(id);
+    const [dataReview] = await itemModel.getAllReviewSingleItem(id);
+    let dataRentCustom = [];
+    let dataReviewCustom = [];
+    let dataFinal = [];
     if (data.length == 0) {
         response.json({
             data: "Item not Found"
         }) 
     } else {
+        for (let index = 0; index < dataRent.length; index++) {
+            dataRentCustom.push({
+                id_rent: dataRent[index].id_sewa,
+                id_user: dataRent[index].id_user,
+                name: dataRent[index].name,
+                avatar: dataRent[index].avatar,
+                date: {
+                    start: globalFunction.formatTanggal(dataRent[index].tanggal_sewa),
+                    end: globalFunction.formatTanggal(dataRent[index].tanggal_kembali)
+
+                },
+                price: globalFunction.rentPriceCalculate(dataRent[index].tanggal_kembali,dataRent[index].tanggal_sewa,dataRent[index].harga_sewa) 
+            })
+            
+        }
+
+        for (let index = 0; index < dataReview.length; index++) {
+            dataReviewCustom.push({
+                id_review: dataReview[index].id_review,
+                id_user: dataReview[index].id_user,
+                name: dataReview[index].name,
+                avatar: dataReview[index].avatar,
+                message: dataReview[index].message,
+                rate: dataReview[index].rate,
+                review_at: globalFunction.formatTanggal(dataReview[index].review_at) 
+            })
+            
+        }
+        dataFinal.push({
+            id_item: data[0].id_barang,
+                name: data[0].nama_barang,
+                image: data[0].gambar_barang,
+                type: data[0].jenis_barang,
+                deskripsi: data[0].deskripsi_barang,
+                stock: data[0].stock,
+                price: data[0].harga_sewa,
+                rating: data[0].rating,
+                all_rent: dataRentCustom,
+                all_review: dataReviewCustom
+        })
+
         response.json({
-            data: data[0]
+            data: dataFinal[0]
         }) 
     }
     
@@ -126,48 +173,9 @@ const updateItem = async(req,response) => {
 
 
 
-
-// const getFilterItemByType = (req,response) => {
-//     response.json({
-//         message: "Get Filter Item"
-//     })
-// }
-
-// const addItem = (req,response)=> {
-//     console.log(req.body);
-//     response.json({
-//         message: "Tambah Item",
-//         data: req.body
-//     })
-// }
-
-// const updateUser = (req,response)=> {
-//     const {id} = req.params;
-//     console.log('idItem : ', id);
-
-//     response.json({
-//         message: 'update item success',
-//         data: req.body
-//     })
-// }
-
-// const deleteItem = (req,response) => {
-//     const {id} = req.params;
-//     console.log(id);
-//     response.json({
-//         message : 'delete',
-//         data : {
-//             id : id,
-//             name : 'ps2'
-//         }
-//     })
-// }
-
-
-
 module.exports = {
     getAllItem,
-    getSingleItem,
+    getSingleItemDetail,
     createItem,
     deleteItem,
     updateItem

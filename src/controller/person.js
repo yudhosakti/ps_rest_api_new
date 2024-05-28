@@ -1,5 +1,6 @@
-const { response } = require('express');
-const userModel = require('../models/user');
+const jwt = require('jsonwebtoken');
+const userModel = require('../models/person');
+const globalFunction = require('./data/global_function')
 
 
 const getALlUser =async (req,response)=> {
@@ -12,7 +13,10 @@ const getALlUser =async (req,response)=> {
         dataTemp.push({
             uid: data[index].id_user,
             email: data[index].email,
-            name: data[index].name
+            name: data[index].name,
+            avatar: data[index].avatar,
+            bookmark: data[index].bookmark_count,
+            rent: data[index].rent_count
         });
         if (dataTemp.length == 25 || index+1 >= data.length) {
             dataFinal.push(dataTemp)
@@ -83,10 +87,11 @@ const getRentPsSingleUser = async (req,response)=> {
                      id_sewa: data[index].sewa,
                      id_barang: data[index].id_barang,
                      nama_barang: data[index].nama_barang,
+                     gambar: data[index].gambar_barang,
                      status: data[index].status,
-                     tanggal_sewa: data[index].tanggal_sewa,
-                     tanggal_kembali: data[index].tanggal_kembali,
-                     harga: Math.abs(data[index].tanggal_kembali - data[index].tanggal_sewa) * data[index].harga_sewa
+                     tanggal_sewa: globalFunction.formatTanggal(data[index].tanggal_sewa) ,
+                     tanggal_kembali: globalFunction.formatTanggal(data[index].tanggal_kembali) ,
+                     harga: globalFunction.rentPriceCalculate(data[index].tanggal_kembali,data[index].tanggal_sewa,data[index].harga_sewa)
                    })
                 }
                 
@@ -108,10 +113,52 @@ const getRentPsSingleUser = async (req,response)=> {
     }
 }
 
+const loginUser = async (req,response) =>{
+    const email = req.body.email
+    const password = req.body.password
+
+    console.log(email,password)
+
+    try {
+        const [data] = await userModel.loginUser(email,password)
+        if (data.length == 0) {
+            response.status(404).json({
+                message: "User Not Found"
+            })
+        } else {
+            var payload = {
+                id_user: data[0].id_user,
+                name: data[0].name,
+                email:data[0].email,
+            }
+            var privateKey = "yudho"
+            const expired = 60 * 60 *24 * 7
+            var token = jwt.sign(payload, privateKey, {expiresIn: expired});
+            response.json({
+                message: "Login Succes",
+                data: {
+                    id_user: data[0].id_user,
+                    name: data[0].name,
+                    email:data[0].email,
+                    avatar: data[0].avatar,
+                    rent: data[0].rent_count,
+                    bookmark: data[0].bookmark_count
+                },
+                token: token
+            })
+        }
+        
+    } catch (error) {
+        response.json({
+            message: error
+        })
+    }
+}
+
 const createNewUser =async (req,response) => {
     const dataInsert = req.body;
     try {
-      await userModel.createUser(dataInsert.uid,dataInsert.email,dataInsert.name).then(()=> {
+      await userModel.createUser(dataInsert.email,dataInsert.name,dataInsert.password).then(()=> {
         response.json({
             message: "Data Inserted",
             data: req.body
@@ -144,8 +191,13 @@ const deleteSingleUser = async (req,response) => {
 const updateSingleUser = async (req,response)=> {
     const {id} = req.params;
     const dataUpdate = req.body;
+    let avatar = ''
+    if (req.file) {
+        avatar = "http://localhost:4000/"+req.file.path.replace(/\\/g, '/'); 
+        console.log('File path:', avatar);
+    }
     try {
-       await userModel.updateUser(id,dataUpdate.name).then(()=> {
+       await userModel.updateUser(id,dataUpdate.name,avatar).then(()=> {
         response.json({
             message: 'Data Update Success',
             id_updated: id,
@@ -159,11 +211,13 @@ const updateSingleUser = async (req,response)=> {
     }
 }
 
+
 module.exports = {
     getALlUser,
     getSingleUser,
     getRentPsSingleUser,
     createNewUser,
     deleteSingleUser,
-    updateSingleUser
+    updateSingleUser,
+    loginUser
 }

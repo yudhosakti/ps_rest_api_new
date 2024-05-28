@@ -15,8 +15,8 @@ const getAllUser = ()=> {
     return dbConnection.execute(query);
  }
 
- const createUser = (uid,email,name)=> {
-    const query = `INSERT INTO tbl_user (id_user,email,name) VALUES ('${uid}','${email}','${name}')`;
+ const createUser = (email,name,password)=> {
+    const query = `INSERT INTO tbl_user(email,name,password) VALUES ('${email}','${name}',SHA1('${password}'))`;
     return dbConnection.execute(query);
  }
 
@@ -25,9 +25,20 @@ const getAllUser = ()=> {
     return dbConnection.execute(query);
  }
 
-const updateUser = (uid,name)=> {
-    const query =   `UPDATE tbl_user SET name='${name}' WHERE tbl_user.id_user='${uid}'`;
+const updateUser = (uid,name,avatar)=> {
+   if (avatar == '') {
+     const query =   `UPDATE tbl_user SET name='${name}' WHERE tbl_user.id_user=${uid}`;
     return dbConnection.execute(query);
+   } else {
+      const query = `UPDATE tbl_user SET name='${name}',avatar='${avatar}' WHERE id_user = ${uid}`;
+      return dbConnection.execute(query);
+   }
+    
+}
+
+const loginUser = (email,password) => {
+   const query = `SELECT * FROM tbl_user WHERE tbl_user.email = '${email}' AND tbl_user.password = SHA1('${password}')`
+   return dbConnection.execute(query);
 }
 
 
@@ -37,5 +48,6 @@ const updateUser = (uid,name)=> {
     getRentPsSingleUser,
     createUser,
     deleteUser,
-    updateUser
+    updateUser,
+    loginUser
  }
