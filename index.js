@@ -8,6 +8,7 @@ const userRoutes = require('./src/routes/person.js');
 const rentRoutes = require('./src/routes/rent.js');
 const chatRoutes = require('./src/routes/discussion.js');
 const forumRoutes = require('./src/routes/forum.js');
+const serviceRoutes = require('./src/routes/service.js');
 
 const middleWare = require('./src/middleware/log.js');
 
@@ -48,6 +49,8 @@ app.use('/rent',rentRoutes)
 app.use('/chat',chatRoutes)
 
 app.use('/forum',forumRoutes)
+
+app.use('/service',serviceRoutes)
 
 
 app.listen(port,() => {
