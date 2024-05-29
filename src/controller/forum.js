@@ -1,4 +1,7 @@
 const forumModel = require('../models/forum')
+const globalFunction = require('./data/global_function')
+const host = require('../config/host_local')
+const fs = require('fs')
 
 const getAllForum = async(req,response)=> {
     const {page} = req.params;
@@ -8,7 +11,14 @@ const getAllForum = async(req,response)=> {
         let dataTemp = [];
 
         for (let index = 0; index < data.length; index++) {
-            dataTemp.push(data[index]);
+            dataTemp.push({
+                id_forum: data[index].id_forum,
+                name: data[index].forum_name,
+                image: data[index].forum_image,
+                deskripsi: data[index].deskripsi,
+                last_message: data[index].last_message,
+                create_at: globalFunction.formatTanggal(data[index].create_at)
+            });
             if (dataTemp.length == 25 || index+1 >= data.length) {
                 dataFinal.push(dataTemp);
                 dataTemp = [];
@@ -55,9 +65,23 @@ const getSingleForum = async(req,response)=> {
     const {id} = req.params;
     try {
         const [data] = await forumModel.getSingleForum(id);
-        response.json({
-            data: data[0]
-        })
+        if (data.length == 0) {
+            response.status(404).json({
+                message: "Data Not Found"
+            })
+        } else {
+            response.json({
+                data: {
+                    id_forum: data[0].id_forum,
+                    name: data[0].forum_name,
+                    image: data[0].forum_image,
+                    deskripsi: data[0].deskripsi,
+                    last_message: data[0].last_message,
+                    create_at: globalFunction.formatTanggal(data[0].create_at)
+                }
+            })
+        }
+        
     } catch (error) {
         response.json({
             message: error
@@ -65,10 +89,64 @@ const getSingleForum = async(req,response)=> {
     }
 }
 
+const getAllChatSingleForum = async(req,response) => {
+    const {id} = req.params
+    try {
+        const [data] = await forumModel.getAllChatSingleForum(id)
+        let dataFinal = []
+        let chatData = []
+        if (data.length == 0) {
+            response.status(404).json({
+                message: "Chat Not Found"
+            })
+        } else {
+            for (let index = 0; index < data.length; index++) {
+                chatData.push({
+                    id_chat: data[index].id_discussion,
+                    id_user: data[index].id_user,
+                    name: data[index].name,
+                    avatar: data[index].avatar,
+                    message: data[index].message,
+                    image: data[index].image,
+                    type: data[index].type,
+                    send_at: globalFunction.formatTanggalPesan(data[index].send_at) 
+                })
+                
+            }
+
+            dataFinal.push({
+                id_forum: data[0].id_forum,
+                    name: data[0].forum_name,
+                    image: data[0].forum_image,
+                    deskripsi: data[0].deskripsi,
+                    last_message: data[0].last_message,
+                    create_at: globalFunction.formatTanggal(data[0].create_at),
+                    chats: chatData
+            })
+
+            
+
+            response.json({
+                data: dataFinal[0]
+            })
+        }
+        
+    } catch (error) {
+        response.status(500).json({
+            message: error
+        })
+    }
+}
+
 const addForum = async(req,response)=> {
     const dataInsert = req.body;
+    let imageURL = ''
+    if (req.file) {
+        imageURL =  host.local+req.file.path.replace(/\\/g, '/');
+    }
     try {
-        await forumModel.addForum(dataInsert.image,dataInsert.name,dataInsert.deskripsi,dataInsert.create_at).then(()=> {
+        
+        await forumModel.addForum(imageURL,dataInsert.name,dataInsert.deskripsi,dataInsert.create_at).then(()=> {
             response.json({
                 message: 'Create Forum Success',
                 data: dataInsert
@@ -83,13 +161,32 @@ const addForum = async(req,response)=> {
 const updateForum = async(req,response)=> {
     const {id} = req.params;
     const dataInsert = req.body;
+    let imageURL = ''
+    if (req.file) {
+        imageURL =  host.local+req.file.path.replace(/\\/g, '/');
+    }
     try {
-        await forumModel.updateForum(id,dataInsert.image,dataInsert.name,dataInsert.deskripsi).then(()=> {
+        await forumModel.getSingleForum(id).then(async(value)=> {
+           const [data] = value
+           if (imageURL != '' && ( data[0].forum_image != null || data[0].forum_image != '')) {
+               let urlFull = data[0].forum_image
+               const pathFile = urlFull.split(host.local) 
+               fs.unlink(pathFile[1],(err) => {
+                  if (err) {
+                    console.log("Internal Error")
+                  }else{
+                    console.log("Success")
+                  }
+               })
+           }
+           await forumModel.updateForum(id,imageURL,dataInsert.name,dataInsert.deskripsi).then(()=> {
             response.json({
                 message: ' Update Forum Success',
                 data: dataInsert
             })
         })
+        })
+       
     } catch (error) {
         response.json({
             message: error
@@ -99,12 +196,27 @@ const updateForum = async(req,response)=> {
 const deleteForum = async(req,response)=> {
     const {id} = req.params;
     try {
-        await forumModel.deleteForum(id).then(()=> {
+        await forumModel.getSingleForum(id).then(async(value)=>{
+            const [data] = value
+           if (data[0].forum_image != null || data[0].forum_image != '') {
+               let urlFull = data[0].forum_image
+               const pathFile = urlFull.split(host.local) 
+               fs.unlink(pathFile[1],(err) => {
+                  if (err) {
+                    console.log("Internal Error")
+                  }else{
+                    console.log("Success")
+                  }
+               })
+           }
+           await forumModel.deleteForum(id).then(()=> {
             response.json({
                 message: 'Delete Forum Success',
                 id_deleted: id
             })
         })
+        })
+        
     } catch (error) {
         response.json({
             message: error
@@ -117,5 +229,6 @@ module.exports= {
     getSingleForum,
     addForum,
     updateForum,
-    deleteForum
+    deleteForum,
+    getAllChatSingleForum
 }

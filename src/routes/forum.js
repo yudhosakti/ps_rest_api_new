@@ -7,6 +7,7 @@ router.get('/',forumController.getAllForum);
 router.get('/:page',forumController.getAllForum)
 
 router.get('/single/:id',forumController.getSingleForum);
+router.get('/single/chat/:id',forumController.getAllChatSingleForum)
 router.post('/',forumController.addForum);
 
 router.put('/:id',forumController.updateForum);

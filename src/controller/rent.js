@@ -1,5 +1,6 @@
 const { response } = require('express');
 const rentModel = require('../models/rent')
+const globalFunction = require('./data/global_function')
 
 const getRentPsAllUser =async (req,response)=> {
     const {page} = req.params;
@@ -11,14 +12,22 @@ const getRentPsAllUser =async (req,response)=> {
      for (let index = 0; index < data.length; index++) {
         dataResponse.push({
             id_sewa: data[index].id_sewa,
-            id_barang: data[index].id_barang,
-            id_user: data[index].id_user,
-            name: data[index].name,
-            email: data[index].email,
-            item: data[index].nama_barang,
-            tanggal_sewa: data[index].tanggal_sewa,
-            tanggal_kembali: data[index].tanggal_kembali,
-            harga: Math.abs(data[index].tanggal_kembali - data[index].tanggal_sewa) * data[index].harga_sewa
+            user: {
+                id: data[index].id_user,
+                name: data[index].name,
+                avatar: data[index].avatar,
+                email: data[index].email
+            },
+            item: {
+                id: data[index].id_barang,
+                name: data[index].nama_barang,
+                image: data[index].gambar_barang
+            },
+            date: {
+                start: globalFunction.formatTanggal(data[index].tanggal_sewa),
+                end: globalFunction.formatTanggal(data[index].tanggal_kembali)
+            },
+            price: globalFunction.rentPriceCalculate(data[index].tanggal_kembali,data[index].tanggal_sewa,data[index].harga_sewa)
         })
         if (dataResponse.length == 25 || index+1 >= data.length) {
             dataResponseFinal.push(dataResponse);
@@ -74,14 +83,22 @@ const getRentSingle = async (req,response)=> {
         } else {
             responseData = {
                 id_sewa: data[0].id_sewa,
-            id_barang: data[0].id_barang,
-            id_user: data[0].id_user,
-            name: data[0].name,
-            email: data[0].email,
-            item: data[0].nama_barang,
-            tanggal_sewa: data[0].tanggal_sewa,
-            tanggal_kembali: data[0].tanggal_kembali,
-            harga: Math.abs(data[0].tanggal_kembali - data[0].tanggal_sewa) * data[0].harga_sewa
+            user: {
+                id: data[0].id_user,
+                name: data[0].name,
+                avatar: data[0].avatar,
+                email: data[0].email
+            },
+            item: {
+                id: data[0].id_barang,
+                name: data[0].nama_barang,
+                image: data[0].gambar_barang
+            },
+            date: {
+                start: globalFunction.formatTanggal(data[0].tanggal_sewa),
+                end: globalFunction.formatTanggal(data[0].tanggal_kembali)
+            },
+            price: globalFunction.rentPriceCalculate(data[0].tanggal_kembali,data[0].tanggal_sewa,data[0].harga_sewa)
             }
             response.json({
                 data : responseData

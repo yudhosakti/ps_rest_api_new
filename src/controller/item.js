@@ -1,6 +1,9 @@
 const { response } = require('express');
 const itemModel = require('../models/item');
 const globalFunction = require('./data/global_function');
+const fs = require('fs');
+const host = require('../config/host_local')
+const itemData = require('./data/item_data')
 
 const getAllItem = async(req,response)=>{
     const {page} = req.params;
@@ -121,8 +124,12 @@ const getSingleItemDetail = async(req,response)=> {
 
 const createItem = async(req,response)=> {
     const dataInsert = req.body;
+    let image = '';
+    if (req.file) {
+        image = host.local+req.file.path.replace(/\\/g, '/'); 
+    }
     try {
-      await itemModel.createItem(dataInsert.name,dataInsert.image,dataInsert.tipe,dataInsert.deskripsi,dataInsert.stock,dataInsert.harga).then(()=> {
+      await itemModel.createItem(dataInsert.name,image,dataInsert.tipe,dataInsert.deskripsi,dataInsert.stock,dataInsert.harga).then(()=> {
         response.json({
             message: 'Data Inserted',
             data: dataInsert
@@ -138,6 +145,20 @@ const createItem = async(req,response)=> {
 const deleteItem = async(req,response) => {
     const {id} = req.params;
     try {
+        await itemModel.getSingleItem(id).then((value)=>{
+            const [data] = value
+            if (data[0].gambar_barang != '' || data[0].gambar_barang != null) {
+                let path = data[0].gambar_barang
+                const separated = path.split(host.local)
+                fs.unlink(separated[1],(err) => {
+                    if (err) {
+                      console.log(err)
+                    }else{
+                     console.log("Berhasil Hapus")
+                    }
+                })
+            }
+        })
         await itemModel.deleteItem(id).then(()=> {
             response.json({
                 message: 'Delete Item Success',
@@ -154,8 +175,28 @@ const deleteItem = async(req,response) => {
 const updateItem = async(req,response) => {
     const {id} = req.params;
     const dataUpdate = req.body;
+    let imageURL = ''
+
+    if (req.file) {
+        imageURL = host.local+req.file.path.replace(/\\/g, '/');
+    }
+
     try {
-        await itemModel.updateItem(id,dataUpdate.name,dataUpdate.image,dataUpdate.tipe,dataUpdate.deskripsi,dataUpdate.stock,dataUpdate.harga).then(()=> {
+        await itemModel.getSingleItem(id).then((value)=>{
+            const [data] = value
+            if (imageURL != '' && (data[0].gambar_barang != '' || data[0].gambar_barang != null)) {
+                let path = data[0].gambar_barang
+                const separated = path.split(host.local)
+                fs.unlink(separated[1],(err) => {
+                    if (err) {
+                      console.log(err)
+                    }else{
+                     console.log("Berhasil Hapus")
+                    }
+                })
+            }
+        })
+        await itemModel.updateItem(id,dataUpdate.name,imageURL,dataUpdate.tipe,dataUpdate.deskripsi,dataUpdate.stock,dataUpdate.harga).then(()=> {
             response.json({
                 message: 'Update Item Success',
                 id_updated : id,

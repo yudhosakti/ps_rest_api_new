@@ -20,6 +20,11 @@ const getAllUser = ()=> {
     return dbConnection.execute(query);
  }
 
+ const createAdmin = (email,name,password) => {
+   const query = `INSERT INTO tbl_user(email,name,password,role) VALUES ('${email}','${name}',SHA1('${password}'),'admin')`;
+   return dbConnection.execute(query);
+ }
+
  const deleteUser = (uid) => {
     const query = `DELETE FROM tbl_user WHERE tbl_user.id_user='${uid}'`
     return dbConnection.execute(query);
@@ -49,5 +54,6 @@ const loginUser = (email,password) => {
     createUser,
     deleteUser,
     updateUser,
-    loginUser
+    loginUser,
+    createAdmin
  }

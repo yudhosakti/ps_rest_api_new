@@ -12,6 +12,7 @@ router.get('/single/:id',userController.getSingleUser);
 router.get('/rent/:id',userController.getRentPsSingleUser);
 
 router.post('/register',userController.createNewUser);
+router.post('/register/admin',userController.createNewAdmin);
 
 router.delete('/:id',userController.deleteSingleUser);
 

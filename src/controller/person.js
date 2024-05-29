@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/person');
 const globalFunction = require('./data/global_function')
+const host = require('../config/host_local')
 
 
 const getALlUser =async (req,response)=> {
@@ -158,7 +159,25 @@ const loginUser = async (req,response) =>{
 const createNewUser =async (req,response) => {
     const dataInsert = req.body;
     try {
-      await userModel.createUser(dataInsert.email,dataInsert.name,dataInsert.password).then(()=> {
+      await userModel.createUser(dataInsert.email,dataInsert.name,dataInsert.password).then((value)=> {
+        response.json({
+            message: "Data Inserted",
+            data: req.body
+          })
+      })
+      
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+    
+}
+
+const createNewAdmin =async (req,response) => {
+    const dataInsert = req.body;
+    try {
+      await userModel.createAdmin(dataInsert.email,dataInsert.name,dataInsert.password).then((value)=> {
         response.json({
             message: "Data Inserted",
             data: req.body
@@ -193,7 +212,7 @@ const updateSingleUser = async (req,response)=> {
     const dataUpdate = req.body;
     let avatar = ''
     if (req.file) {
-        avatar = "http://localhost:4000/"+req.file.path.replace(/\\/g, '/'); 
+        avatar = host.local+req.file.path.replace(/\\/g, '/'); 
         console.log('File path:', avatar);
     }
     try {
@@ -219,5 +238,6 @@ module.exports = {
     createNewUser,
     deleteSingleUser,
     updateSingleUser,
-    loginUser
+    loginUser,
+    createNewAdmin
 }
