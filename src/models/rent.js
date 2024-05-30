@@ -10,8 +10,8 @@ const getSingleRent = (id)=> {
     return dbConnection.execute(query);
 }
 
-const insertRent = (idBarang,idUser,status,tanggal_sewa,tanggal_kembali)=> {
-    const query = `INSERT INTO tbl_penyewaan(id_barang,id_user,status,tanggal_sewa,tanggal_kembali) VALUES (${idBarang},'${idUser}','${status}','${tanggal_sewa}','${tanggal_kembali}')`;
+const insertRent = (idBarang,idUser,id_transaksi,status,tanggal_sewa,tanggal_kembali)=> {
+    const query = `INSERT INTO tbl_penyewaan(id_barang,id_user,id_transaksi,status,tanggal_sewa,tanggal_kembali) VALUES (${idBarang},${idUser},'${id_transaksi}','${status}','${tanggal_sewa}','${tanggal_kembali}')`;
     return dbConnection.execute(query);
 }
 

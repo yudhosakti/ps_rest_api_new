@@ -210,6 +210,58 @@ const updateItem = async(req,response) => {
     }
 }
 
+const createReview = async(req,response) => {
+    const dataInsert = req.body
+    try {
+        await itemModel.createReview(dataInsert.id_barang,dataInsert.id_user,dataInsert.message,dataInsert.rate,dataInsert.review_at).then(() => {
+            response.json({
+                message: "Review Added",
+                data: dataInsert
+            })
+        })
+        
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
+const updateReview = async(req,response) => {
+    const dataInsert = req.body
+    try {
+        await itemModel.updateReview(dataInsert.id_review,dataInsert.message,dataInsert.rate,dataInsert.review_at).then(()=> {
+            response.json({
+                message: "Review Updated",
+                data: dataInsert
+            })
+        })
+        
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
+const deleteReview = async(req,response) => {
+    const dataInsert = req.body
+
+    try {
+        await itemModel.deleteReview(dataInsert.id_review).then(()=> {
+            response.json({
+                message: "Review Deleted",
+                data: dataInsert
+            })
+        })
+        
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
 
 
 
@@ -219,5 +271,8 @@ module.exports = {
     getSingleItemDetail,
     createItem,
     deleteItem,
-    updateItem
+    updateItem,
+    createReview,
+    updateReview,
+    deleteReview
 }

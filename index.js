@@ -6,7 +6,6 @@ const path = require('path')
 const barangRoutes = require('./src/routes/item.js');
 const userRoutes = require('./src/routes/person.js');
 const rentRoutes = require('./src/routes/rent.js');
-const chatRoutes = require('./src/routes/discussion.js');
 const forumRoutes = require('./src/routes/forum.js');
 const serviceRoutes = require('./src/routes/service.js');
 
@@ -16,7 +15,7 @@ const middleWare = require('./src/middleware/log.js');
 const fileStorage = multer.diskStorage({
     destination: (req,res,cb) => {
         cb(null,'images/');
-    },
+    },  
     filename: (req,res,cb) => {
        cb(null,new Date().getTime() + '-' + res.originalname)
     }
@@ -45,8 +44,6 @@ app.use('/item', barangRoutes)
 app.use('/person',userRoutes)
 
 app.use('/rent',rentRoutes)
-
-app.use('/chat',chatRoutes)
 
 app.use('/forum',forumRoutes)
 

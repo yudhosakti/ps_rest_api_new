@@ -35,6 +35,21 @@ const updateItem = (id,name,image,tipe,deskripsi,stock,harga) => {
     return dbConnection.execute(query);
 }
 
+const createReview = (id_barang,id_user,message,rate,review_at) => {
+    const query = `INSERT INTO tbl_review(id_user,id_barang,message,rate,review_at) VALUES (${id_user},${id_barang},'${message}',${rate},'${review_at}')`
+    return dbConnection.execute(query)
+}
+
+const updateReview = (id_review,message,rate,review_at) => {
+    const query = `UPDATE tbl_review SET message='${message}',rate=${rate},review_at='${review_at}' WHERE id_review = ${id_review}`
+    return dbConnection.execute(query)
+}
+
+const deleteReview = (id_review) => {
+    const query = `DELETE FROM tbl_review WHERE id_review = ${id_review}`
+    return dbConnection.execute(query)
+}
+
 module.exports = {
     getAllItem,
     getSingleItem,
@@ -42,5 +57,8 @@ module.exports = {
     deleteItem,
     updateItem,
     getAllRentSingleItem,
-    getAllReviewSingleItem
+    getAllReviewSingleItem,
+    createReview,
+    updateReview,
+    deleteReview
 }
