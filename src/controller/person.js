@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const userModel = require('../models/person');
 const globalFunction = require('./data/global_function')
 const host = require('../config/host_local')
+const fs = require('fs');
 
 
 const getALlUser =async (req,response)=> {
@@ -17,7 +18,8 @@ const getALlUser =async (req,response)=> {
             name: data[index].name,
             avatar: data[index].avatar,
             bookmark: data[index].bookmark_count,
-            rent: data[index].rent_count
+            rent: data[index].rent_count,
+            role: data[index].role
         });
         if (dataTemp.length == 25 || index+1 >= data.length) {
             dataFinal.push(dataTemp)
@@ -75,7 +77,12 @@ const getRentPsSingleUser = async (req,response)=> {
     const {id} = req.params;
     try {
         const [data] = await userModel.getRentPsSingleUser(id);
-        let dataResponse = {}
+        if (data.length == 0) {
+            response.status(404).json({
+                message:"User doesnt have rent"
+            })
+        } else {
+            let dataResponse = {}
         let penyewaan = []
         let tempData = []
         let idUser = ''
@@ -106,6 +113,8 @@ const getRentPsSingleUser = async (req,response)=> {
         response.json({
             data: dataResponse
         })
+        }
+        
 
     } catch (error) {
         response.status(500).json({
@@ -158,13 +167,30 @@ const loginUser = async (req,response) =>{
 
 const createNewUser =async (req,response) => {
     const dataInsert = req.body;
+    let pwdTrimp = dataInsert.password.trim()
     try {
-      await userModel.createUser(dataInsert.email,dataInsert.name,dataInsert.password).then((value)=> {
-        response.json({
-            message: "Data Inserted",
-            data: req.body
+      if (dataInsert.email == undefined || dataInsert.name == undefined || dataInsert.password == undefined) {
+        response.status(500).json({
+            message : "Data Not Complete"
+        }) 
+      }else if(dataInsert.email == '' || dataInsert.name == '' || dataInsert.password == ''){
+        response.status(500).json({
+            message : "Data Cannot Empty"
+        }) 
+      }else if(pwdTrimp.length < 8){
+        response.status(500).json({
+            message : "Character Pada Password Minimal 8 Character"
+        })
+      } 
+      else {
+        await userModel.createUser(dataInsert.email,dataInsert.name,dataInsert.password).then((value)=> {
+            response.json({
+                message: "Data Inserted",
+                data: req.body
+              })
           })
-      })
+      }
+      
       
     } catch (error) {
         response.status(500).json({
@@ -176,13 +202,30 @@ const createNewUser =async (req,response) => {
 
 const createNewAdmin =async (req,response) => {
     const dataInsert = req.body;
+    let pwdTrimp = dataInsert.password.trim()
     try {
-      await userModel.createAdmin(dataInsert.email,dataInsert.name,dataInsert.password).then((value)=> {
-        response.json({
-            message: "Data Inserted",
-            data: req.body
-          })
-      })
+        if (dataInsert.email == undefined || dataInsert.name == undefined || dataInsert.password == undefined) {
+            response.status(500).json({
+                message : "Data Not Complete"
+            }) 
+          }else if(dataInsert.email == '' || dataInsert.name == '' || dataInsert.password == ''){
+            response.status(500).json({
+                message : "Data Cannot Empty"
+            }) 
+          }else if(pwdTrimp.length < 8){
+            response.status(500).json({
+                message : "Character Pada Password Minimal 8 Character"
+            })
+          }else{
+            await userModel.createAdmin(dataInsert.email,dataInsert.name,dataInsert.password).then((value)=> {
+                response.json({
+                    message: "Data Inserted",
+                    data: req.body
+                  })
+              })
+
+          } 
+      
       
     } catch (error) {
         response.status(500).json({
@@ -194,12 +237,20 @@ const createNewAdmin =async (req,response) => {
 const deleteSingleUser = async (req,response) => {
     const {id} = req.params;
     try {
-        await userModel.deleteUser(id).then(()=> {
-            response.json({
-                message: "Delete Success",
-                id_deleted: id
+        const [data] = await userModel.getSingleUser(id)
+        if (data.length == 0) {
+            response.status(404).json({
+                message :  'User Not Found'
+            }) 
+        } else {
+            await userModel.deleteUser(id).then(()=> {
+                response.json({
+                    message: "Delete Success",
+                    id_deleted: id
+                })
             })
-        })
+        }
+       
     } catch (error) {
         response.status(500).json({
             message : error
@@ -211,18 +262,40 @@ const updateSingleUser = async (req,response)=> {
     const {id} = req.params;
     const dataUpdate = req.body;
     let avatar = ''
-    if (req.file) {
-        avatar = host.local+req.file.path.replace(/\\/g, '/'); 
-        console.log('File path:', avatar);
-    }
     try {
-       await userModel.updateUser(id,dataUpdate.name,avatar).then(()=> {
-        response.json({
-            message: 'Data Update Success',
-            id_updated: id,
-            data:req.body
-        })
-       })
+      const [data] = await userModel.getSingleUser(id)
+      if (data.length == 0) {
+        response.status(404).json({
+            message :  'User Not Found'
+        }) 
+      } else {
+        if (req.file) {
+            avatar = host.local+req.file.path.replace(/\\/g, '/'); 
+            console.log('File path:', avatar);
+        }
+
+        if (data[0].avatar != null && avatar != '') {
+            let urlFull = data[0].avatar
+            const pathFile = urlFull.split(host.local) 
+            fs.unlink(pathFile[1],(err) => {
+               if (err) {
+                 console.log("Internal Error")
+               }else{
+                 console.log("Success")
+               }
+            })
+        }
+
+        await userModel.updateUser(id,dataUpdate.name,avatar).then(()=> {
+            response.json({
+                message: 'Data Update Success',
+                id_updated: id,
+                data:dataUpdate
+            })
+           })
+
+      }
+       
     } catch (error) {
         response.status(500).json({
             message : error
@@ -246,10 +319,17 @@ const getAllBookmarkById = async(req,response) => {
         })
         
     }
+    if (dataFinal.length == 0) {
+        response.status(404).json({
+            message: "Empty Bookmark"
+        })
+    } else {
+        response.json({
+            data: dataFinal
+        })
+    }
 
-    response.json({
-        data: dataFinal
-    })
+   
     
    } catch (error) {
     response.status(500).json({
@@ -281,12 +361,20 @@ const createBookmark = async(req,response) => {
 const deleteBookmark = async(req,response) => {
     const dataInsert = req.body
     try {
-       await userModel.deleteBookmark(dataInsert.id_bookmark).then(() => {
-          response.json({
-            message: "Bookmark Deleted",
-            data: dataInsert 
-          })
-       }) 
+       const [data] = await userModel.getSingleBookmarkById(dataInsert.id_bookmark)
+       if (data.length == 0) {
+        response.status(404).json({
+            message: "Bookmark Not Found"
+        })
+       } else {
+        await userModel.deleteBookmark(dataInsert.id_bookmark).then(() => {
+            response.json({
+              message: "Bookmark Deleted",
+              data: dataInsert 
+            })
+         }) 
+       }
+       
         
     } catch (error) {
         response.status(500).json({

@@ -145,14 +145,25 @@ const addForum = async(req,response)=> {
         imageURL =  host.local+req.file.path.replace(/\\/g, '/');
     }
     try {
-        
-        await forumModel.addForum(imageURL,dataInsert.name,dataInsert.deskripsi,dataInsert.create_at).then(()=> {
+        console.log(imageURL)
+        await forumModel.addForum(imageURL,dataInsert.name,dataInsert.deskripsi,globalFunction.getDateNow()).then(()=> {
             response.json({
                 message: 'Create Forum Success',
                 data: dataInsert
             })
         })
     } catch (error) {
+        if (imageURL != '') {
+            let urlFull = imageURL
+            const pathFile = urlFull.split(host.local) 
+            fs.unlink(pathFile[1],(err) => {
+               if (err) {
+                 console.log("Internal Error")
+               }else{
+                 console.log("Success")
+               }
+            })
+        }
         response.status(500).json({
             message: error
         })
@@ -168,26 +179,56 @@ const updateForum = async(req,response)=> {
     try {
         await forumModel.getSingleForum(id).then(async(value)=> {
            const [data] = value
-           if (imageURL != '' && ( data[0].forum_image != null || data[0].forum_image != '')) {
-               let urlFull = data[0].forum_image
-               const pathFile = urlFull.split(host.local) 
-               fs.unlink(pathFile[1],(err) => {
-                  if (err) {
-                    console.log("Internal Error")
-                  }else{
-                    console.log("Success")
-                  }
-               })
-           }
-           await forumModel.updateForum(id,imageURL,dataInsert.name,dataInsert.deskripsi).then(()=> {
-            response.json({
-                message: ' Update Forum Success',
-                data: dataInsert
+           if (data.length == 0) {
+            if (imageURL != '') {
+                let urlFull = imageURL
+                const pathFile = urlFull.split(host.local) 
+                fs.unlink(pathFile[1],(err) => {
+                   if (err) {
+                     console.log("Internal Error")
+                   }else{
+                     console.log("Success")
+                   }
+                })
+            }
+            response.status(404).json({
+                message :  'Forum Not Found'
+            }) 
+           } else {
+            if (imageURL != '' && data[0].forum_image != null ) {
+                let urlFull = data[0].forum_image
+                const pathFile = urlFull.split(host.local) 
+                fs.unlink(pathFile[1],(err) => {
+                   if (err) {
+                     console.log("Internal Error")
+                   }else{
+                     console.log("Success")
+                   }
+                })
+            }
+            await forumModel.updateForum(id,imageURL,dataInsert.name,dataInsert.deskripsi).then(()=> {
+                response.json({
+                    message: ' Update Forum Success',
+                    data: dataInsert
+                })
             })
-        })
+           }
+           
+          
         })
        
     } catch (error) {
+        if (imageURL != '') {
+            let urlFull = imageURL
+            const pathFile = urlFull.split(host.local) 
+            fs.unlink(pathFile[1],(err) => {
+               if (err) {
+                 console.log("Internal Error")
+               }else{
+                 console.log("Success")
+               }
+            })
+        }
         response.status(500).json({
             message: error
         })
@@ -197,24 +238,31 @@ const deleteForum = async(req,response)=> {
     const {id} = req.params;
     try {
         await forumModel.getSingleForum(id).then(async(value)=>{
-            const [data] = value
-           if (data[0].forum_image != null || data[0].forum_image != '') {
-               let urlFull = data[0].forum_image
-               const pathFile = urlFull.split(host.local) 
-               fs.unlink(pathFile[1],(err) => {
-                  if (err) {
-                    console.log("Internal Error")
-                  }else{
-                    console.log("Success")
-                  }
-               })
-           }
-           await forumModel.deleteForum(id).then(()=> {
-            response.json({
-                message: 'Delete Forum Success',
-                id_deleted: id
-            })
-        })
+          const [data] = value
+          if (data.length == 0) {
+            response.status(404).json({
+                message :  'Forum Not Found'
+            }) 
+          } else {
+            if (data[0].forum_image != null || data[0].forum_image != '') {
+                let urlFull = data[0].forum_image
+                const pathFile = urlFull.split(host.local) 
+                fs.unlink(pathFile[1],(err) => {
+                   if (err) {
+                     console.log("Internal Error")
+                   }else{
+                     console.log("Success")
+                   }
+                })
+            }
+            await forumModel.deleteForum(id).then(()=> {
+             response.json({
+                 message: 'Delete Forum Success',
+                 id_deleted: id
+             })
+         })
+          }
+           
         })
         
     } catch (error) {
@@ -232,8 +280,7 @@ const createMessage = async(req,response) => {
         imageURL = host.local+req.file.path.replace(/\\/g, '/');
     }
     try {
-
-        await forumModel.createMessageForum(dataInsert.id_forum,dataInsert.id_user,dataInsert.message,imageURL,dataInsert.send_at).then(() => {
+        await forumModel.createMessageForum(dataInsert.id_forum,dataInsert.id_user,dataInsert.message,imageURL,globalFunction.getDateTimeNow()).then(() => {
                 response.json({
                     message: "Message Send Success",
                     data: dataInsert
@@ -242,6 +289,17 @@ const createMessage = async(req,response) => {
 
         
     } catch (error) {
+        if (imageURL != '') {
+            let urlFull = imageURL
+            const pathFile = urlFull.split(host.local) 
+            fs.unlink(pathFile[1],(err) => {
+               if (err) {
+                 console.log("Internal Error")
+               }else{
+                 console.log("Success")
+               }
+            })
+        }
         response.status(500).json({
             message: error
         })
@@ -256,8 +314,45 @@ const updateMessage = async(req,response) => {
     }
     try {
         const [data] = await forumModel.getSingleMessageForum(dataInsert.id_discussion)
-        console.log(data[0].image)
-        if (imageUrl != '' && ( data[0].image != null)) {
+        if (data.length == 0) {
+            if (imageUrl != '') {
+                let urlFull = data[0].image
+                const pathFile = urlFull.split(host.local) 
+                fs.unlink(pathFile[1],(err) => {
+                   if (err) {
+                     console.log("Internal Error")
+                   }else{
+                     console.log("Success")
+                   }
+                })
+            }
+            response.status(404).json({
+                message :  'Message Not Found'
+            }) 
+        } else {
+            if (imageUrl != '' && data[0].image != null) {
+                let urlFull = data[0].image
+                const pathFile = urlFull.split(host.local) 
+                fs.unlink(pathFile[1],(err) => {
+                   if (err) {
+                     console.log("Internal Error")
+                   }else{
+                     console.log("Success")
+                   }
+                })
+            }
+            await forumModel.updateMessageForum(dataInsert.id_discussion,dataInsert.message,imageUrl).then(() =>{
+                response.json({
+                    message: 'Update Message Success',
+                    data: dataInsert
+                })
+            }) 
+        }
+        
+        
+        
+    } catch (error) {
+        if (imageUrl != '') {
             let urlFull = data[0].image
             const pathFile = urlFull.split(host.local) 
             fs.unlink(pathFile[1],(err) => {
@@ -268,14 +363,6 @@ const updateMessage = async(req,response) => {
                }
             })
         }
-        await forumModel.updateMessageForum(dataInsert.id_discussion,dataInsert.message,imageUrl).then(() =>{
-            response.json({
-                message: 'Update Message Success',
-                data: dataInsert
-            })
-        })
-        
-    } catch (error) {
         response.status(500).json({
             message: error
         })
@@ -286,22 +373,29 @@ const deleteMessageForum = async(req,response) => {
     const dataInsert = req.body
     try {
         const [data] = await forumModel.getSingleMessageForum(dataInsert.id_discussion)
-        if (data[0].image != null) {
-            let urlFull = data[0].image
-            const pathFile = urlFull.split(host.local) 
-            fs.unlink(pathFile[1],(err) => {
-               if (err) {
-                 console.log("Internal Error")
-               }else{
-                 console.log("Success")
-               }
+        if (data.length == 0) {
+            response.status(404).json({
+                message :  'Message Not Found'
+            }) 
+        } else {
+            if (data[0].image != null) {
+                let urlFull = data[0].image
+                const pathFile = urlFull.split(host.local) 
+                fs.unlink(pathFile[1],(err) => {
+                   if (err) {
+                     console.log("Internal Error")
+                   }else{
+                     console.log("Success")
+                   }
+                })
+            }
+            await forumModel.deleteMessageForum(dataInsert.id_discussion).then(() => {
+                response.json({
+                    message: "Chat Deleted Succes"
+                })
             })
         }
-        await forumModel.deleteMessageForum(dataInsert.id_discussion).then(() => {
-            response.json({
-                message: "Chat Deleted Succes"
-            })
-        })
+        
         
     } catch (error) {
         response.status(500).json({

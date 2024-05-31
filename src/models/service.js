@@ -47,6 +47,11 @@ const updateMessage = (id_chat,message) => {
     return dbConnection.execute(query)
 }
 
+const createGroupWithProcedure =(id_receiver,id_sender,pesan,waktu,memberTime) => {
+    const query = `CALL tambahGroupService(${id_receiver},${id_sender},'${pesan}','${waktu}','${memberTime}')`
+    return dbConnection.execute(query)
+}
+
 module.exports = {
     getAllGroup,
     getAllGroupBySingleId,
@@ -56,7 +61,8 @@ module.exports = {
     createMessage,
     updateMessage,
     createMemberGroup,
-    getSingleMember
+    getSingleMember,
+    createGroupWithProcedure
 }
 
 

@@ -16,11 +16,11 @@ const getAllChatSingleForum = (id) => {
 }
 
 const addForum = (image,name,deskripsi,create_at)=> {
-    if (image == null || image == '') {
-        const query = `INSERT INTO tbl_forum(forum_name,deskripsi,last_message,create_at) VALUES ('${name}','${deskripsi}','','${create_at}')`;
+    if (image == '') {
+    const query = `INSERT INTO tbl_forum(forum_name,deskripsi,last_message,create_at) VALUES ('${name}','${deskripsi}',NULL,'${create_at}')`;
     return dbConnection.execute(query);
     } else {
-        const query = `INSERT INTO tbl_forum(forum_name,deskripsi,last_message,create_at,forum_image) VALUES ('${name}','${deskripsi}','','${create_at}','${image}')`;
+        const query = `INSERT INTO tbl_forum(forum_name,deskripsi,last_message,create_at,forum_image) VALUES ('${name}','${deskripsi}',NULL,'${create_at}','${image}')`;
     return dbConnection.execute(query);
     }
 }

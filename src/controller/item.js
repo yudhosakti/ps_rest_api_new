@@ -136,6 +136,18 @@ const createItem = async(req,response)=> {
         })
       })
     } catch (error) {
+        if (image != '') {
+            let path = image
+        const separated = path.split(host.local)
+        fs.unlink(separated[1],(err) => {
+            if (err) {
+                console.log(err)
+                }else{
+                console.log("Berhasil Hapus")
+                }
+                })
+        }
+        
         response.status(500).json({
             message : error
         })   
@@ -145,26 +157,34 @@ const createItem = async(req,response)=> {
 const deleteItem = async(req,response) => {
     const {id} = req.params;
     try {
-        await itemModel.getSingleItem(id).then((value)=>{
+        await itemModel.getSingleItem(id).then(async(value)=>{
             const [data] = value
-            if (data[0].gambar_barang != '' || data[0].gambar_barang != null) {
-                let path = data[0].gambar_barang
-                const separated = path.split(host.local)
-                fs.unlink(separated[1],(err) => {
-                    if (err) {
-                      console.log(err)
-                    }else{
-                     console.log("Berhasil Hapus")
-                    }
+            if (data.length == 0) {
+                response.json({
+                    data: "Item not Found"
+                }) 
+            } else {
+                if (data[0].gambar_barang != '' || data[0].gambar_barang != null) {
+                    let path = data[0].gambar_barang
+                    const separated = path.split(host.local)
+                    fs.unlink(separated[1],(err) => {
+                        if (err) {
+                          console.log(err)
+                        }else{
+                         console.log("Berhasil Hapus")
+                        }
+                    })
+                }
+                await itemModel.deleteItem(id).then(()=> {
+                    response.json({
+                        message: 'Delete Item Success',
+                        id_deleted: id
+                    })
                 })
             }
+          
         })
-        await itemModel.deleteItem(id).then(()=> {
-            response.json({
-                message: 'Delete Item Success',
-                id_deleted: id
-            })
-        })
+       
     } catch (error) {
         response.status(500).json({
             message : error
@@ -176,34 +196,63 @@ const updateItem = async(req,response) => {
     const {id} = req.params;
     const dataUpdate = req.body;
     let imageURL = ''
-
     if (req.file) {
         imageURL = host.local+req.file.path.replace(/\\/g, '/');
     }
-
     try {
-        await itemModel.getSingleItem(id).then((value)=>{
+        await itemModel.getSingleItem(id).then(async(value)=>{
             const [data] = value
-            if (imageURL != '' && (data[0].gambar_barang != '' || data[0].gambar_barang != null)) {
-                let path = data[0].gambar_barang
+            console.log(imageURL)
+            if (data.length == 0) {
+                if (imageURL != '') {
+                    let path = imageURL
                 const separated = path.split(host.local)
                 fs.unlink(separated[1],(err) => {
                     if (err) {
-                      console.log(err)
-                    }else{
-                     console.log("Berhasil Hapus")
-                    }
+                        console.log(err)
+                        }else{
+                        console.log("Berhasil Hapus")
+                        }
+                        })
+                }
+                response.status(404).json({
+                    message :  'Item Not Found'
+                }) 
+            } else {
+                if (imageURL != '' &&  data[0].gambar_barang != null) {
+                    let path = data[0].gambar_barang
+                    const separated = path.split(host.local)
+                    fs.unlink(separated[1],(err) => {
+                        if (err) {
+                          console.log(err)
+                        }else{
+                         console.log("Berhasil Hapus")
+                        }
+                    })
+                }
+                await itemModel.updateItem(id,dataUpdate.name,imageURL,dataUpdate.tipe,dataUpdate.deskripsi,dataUpdate.stock,dataUpdate.harga).then(()=> {
+                    response.json({
+                        message: 'Update Item Success',
+                        id_updated : id,
+                        data: dataUpdate
+                    })
                 })
             }
+            
         })
-        await itemModel.updateItem(id,dataUpdate.name,imageURL,dataUpdate.tipe,dataUpdate.deskripsi,dataUpdate.stock,dataUpdate.harga).then(()=> {
-            response.json({
-                message: 'Update Item Success',
-                id_updated : id,
-                data: dataUpdate
-            })
-        })
+       
     } catch (error) {
+        if (imageURL != '') {
+            let path = imageURL
+        const separated = path.split(host.local)
+        fs.unlink(separated[1],(err) => {
+            if (err) {
+                console.log(err)
+                }else{
+                console.log("Berhasil Hapus")
+                }
+                })
+        }
         response.status(500).json({
             message : error
         }) 
@@ -213,7 +262,7 @@ const updateItem = async(req,response) => {
 const createReview = async(req,response) => {
     const dataInsert = req.body
     try {
-        await itemModel.createReview(dataInsert.id_barang,dataInsert.id_user,dataInsert.message,dataInsert.rate,dataInsert.review_at).then(() => {
+        await itemModel.createReview(dataInsert.id_barang,dataInsert.id_user,dataInsert.message,dataInsert.rate,globalFunction.getDateNow()).then(() => {
             response.json({
                 message: "Review Added",
                 data: dataInsert
@@ -230,12 +279,20 @@ const createReview = async(req,response) => {
 const updateReview = async(req,response) => {
     const dataInsert = req.body
     try {
-        await itemModel.updateReview(dataInsert.id_review,dataInsert.message,dataInsert.rate,dataInsert.review_at).then(()=> {
-            response.json({
-                message: "Review Updated",
-                data: dataInsert
+        const [data] = await itemModel.getSingleReviewById(dataInsert.id_review)
+        if (data.length == 0) {
+            response.status(404).json({
+                message :  'Review Not Found'
+            }) 
+        } else {
+            await itemModel.updateReview(dataInsert.id_review,dataInsert.message,dataInsert.rate,globalFunction.getDateNow()).then(()=> {
+                response.json({
+                    message: "Review Updated",
+                    data: dataInsert
+                })
             })
-        })
+        }
+        
         
     } catch (error) {
         response.status(500).json({
@@ -248,12 +305,20 @@ const deleteReview = async(req,response) => {
     const dataInsert = req.body
 
     try {
-        await itemModel.deleteReview(dataInsert.id_review).then(()=> {
-            response.json({
-                message: "Review Deleted",
-                data: dataInsert
+        const [data] = await itemModel.getSingleReviewById(dataInsert.id_review)
+        if (data.length == 0) {
+            response.status(404).json({
+                message :  'Review Not Found'
+            }) 
+        } else {
+            await itemModel.deleteReview(dataInsert.id_review).then(()=> {
+                response.json({
+                    message: "Review Deleted",
+                    data: dataInsert
+                })
             })
-        })
+        }
+        
         
     } catch (error) {
         response.status(500).json({

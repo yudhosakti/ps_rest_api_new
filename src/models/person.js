@@ -61,6 +61,11 @@ const createBookmark = (id_user,id_barang,bookmark_at) => {
    return dbConnection.execute(query)
 }
 
+const getSingleBookmarkById = (id_bookmark) => {
+   const query = `SELECT * FROM tbl_bookmark WHERE tbl_bookmark.id_bookmark = ${id_bookmark}`
+   return dbConnection.execute(query)
+}
+
 const deleteBookmark = (id_bookmark) => {
    const query = `DELETE FROM tbl_bookmark WHERE id_bookmark = ${id_bookmark}`
    return dbConnection.execute(query)
@@ -81,5 +86,6 @@ const deleteBookmark = (id_bookmark) => {
     getAllBookmarkByIdUser,
     createBookmark,
     deleteBookmark,
-    getSingleBookmarkByIdUser
+    getSingleBookmarkByIdUser,
+    getSingleBookmarkById
  }

@@ -66,37 +66,16 @@ const createGroupChat = async(req,response) => {
     const dataInsert = req.body
 
     const newTime =  Date.now()
-
+    let dateNow = new Date() 
     console.log(globlFunction.formatMySQLTimestamp(newTime))
     
     try {
-        await serviceModel.createGroup(globlFunction.formatMySQLTimestamp(newTime)).then(async()=> {
-            const [dataGrup] = await serviceModel.getSingleGroup(globlFunction.formatMySQLTimestamp(newTime))
-            if (dataGrup.length == 0) {
-                throw response.status(500).json({
-                    message: 'Interal Error'
-                })
-            } else {
-                let dateNow = new Date() 
-                await serviceModel.createMemberGroup(dataGrup[0].id_cs,dataInsert.id_receiver,dataInsert.id_sender,globlFunction.formatTanggal(dateNow)).then(async()=>{
-                    const [dataMember] = await serviceModel.getSingleMember(dataGrup[0].id_cs,dataInsert.id_sender)
-                    if (dataMember.length == 0) {
-                        throw response.status(500).json({
-                            message: 'Interal Error'
-                        })
-                    } else {
-                        await serviceModel.createMessage(dataGrup[0].id_cs,dataMember[0].id_member,dataInsert.message,globlFunction.formatTanggalPesan(dateNow)).then(()=> {
-                            response.json({
-                                message: "Insert Success",
-                                data: dataInsert
-                            })
-                        })
-                    }
-                    
-                })
-            }
+        await serviceModel.createGroupWithProcedure(dataInsert.id_receiver,dataInsert.id_sender,dataInsert.message,globlFunction.formatMySQLTimestamp(newTime),globlFunction.formatTanggal(dateNow)).then(()=> {
+            response.json({
+                message: "Group dan Pesan Berhasil Dikirim",
+                data: dataInsert
+            })
         })
-        
     } catch (error) {
         response.status(500).json({
             message: error

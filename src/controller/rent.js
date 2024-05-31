@@ -31,6 +31,7 @@ const getRentPsAllUser =async (req,response)=> {
                 start: globalFunction.formatTanggal(data[index].tanggal_sewa),
                 end: globalFunction.formatTanggal(data[index].tanggal_kembali)
             },
+            status: data[index].status,
             price: globalFunction.rentPriceCalculate(data[index].tanggal_kembali,data[index].tanggal_sewa,data[index].harga_sewa)
         })
         if (dataResponse.length == 25 || index+1 >= data.length) {
@@ -50,7 +51,7 @@ const getRentPsAllUser =async (req,response)=> {
          })
      }else{
         if (parseInt(page) <= 0 || parseInt(page)> dataResponseFinal.length) {
-            response.status(500).json({
+            response.status(404).json({
                 message: "Data Not Found"
             })
         }else{
@@ -81,7 +82,7 @@ const getRentSingle = async (req,response)=> {
         const [data] = await rentModel.getSingleRent(id)
         let responseData = {};
         if (data.length == 0) {
-            response.status(500).json({
+            response.status(404).json({
                 message: "Data Not Found"
             })
         } else {
@@ -102,6 +103,7 @@ const getRentSingle = async (req,response)=> {
                 start: globalFunction.formatTanggal(data[0].tanggal_sewa),
                 end: globalFunction.formatTanggal(data[0].tanggal_kembali)
             },
+            status: data[0].status,
             price: globalFunction.rentPriceCalculate(data[0].tanggal_kembali,data[0].tanggal_sewa,data[0].harga_sewa)
             }
             response.json({
@@ -161,7 +163,7 @@ const createNewRent = async (req,response)=> {
             } else {
                 await rentModel.insertRent(parseInt(response_custom[0].items[0].brand),parseInt(response_custom[0].customer.user_id),response_custom[0].order_id,'pending',response_custom[0].tanggal_sewa,response_custom[0].tanggal_kembali).then(()=> {
                     response.json({
-                        message: "Rent Success But Pay Still Pending",
+                        message: "Rent Success But Payment Still Pending",
                         data: req.body
                     })
                 })
@@ -179,12 +181,20 @@ const createNewRent = async (req,response)=> {
 const deleteRent = async (req,response)=> {
     const {id} = req.params;
     try {
-        await rentModel.deleteRent(id).then(()=> {
-            response.json({
-                message: 'Delete Rent Success',
-                id_delete: id
+        const [data] = await rentModel.getSingleRent(id)
+        if (data.length == 0) {
+            response.status(404).json({
+                message: "Data Not Found"
             })
-        })
+        } else {
+            await rentModel.deleteRent(id).then(()=> {
+                response.json({
+                    message: 'Delete Rent Success',
+                    id_delete: id
+                })
+            })
+        }
+        
     } catch (error) {
         response.status(500).json({
             message : error
@@ -227,21 +237,28 @@ const updateRent = async (req,response) => {
                 items: jsonResponse.item_details,
                 purchase: jsonResponse.purchases
             })
-            console.log(response_custom)
-            if (response_custom[0].status == 'SETTLEMENT') {
-                await rentModel.updateRent(id,'approve').then(() => {
-                    response.json({
-                        message: "Update Rent Success",
-                        status: "Approve",
-                        data: req.body
-                    })
+            const [data] = await rentModel.getSingleRent(id)
+            if (data.length == 0) {
+                response.status(404).json({
+                    message: "Rent Not Found"
                 })
             } else {
-                response.json({
-                    message: "Cannot Update Payment Not Complete",
-                    data: req.body
-                })
+                if (response_custom[0].status == 'SETTLEMENT') {
+                    await rentModel.updateRent(id,'approve').then(() => {
+                        response.json({
+                            message: "Update Rent Success",
+                            status: "Approve",
+                            data: req.body
+                        })
+                    })
+                } else {
+                    response.json({
+                        message: "Cannot Update Payment Not Complete",
+                        data: req.body
+                    })
+                }
             }
+            
             
         }
         
@@ -263,7 +280,17 @@ const getPaymentLink = async(req,response) => {
     
         })
       } else {
-        const price = globalFunction.rentPriceCalculate(dataInsert.tanggal_kembali,dataInsert.tanggal_sewa,data[0].harga_sewa)
+        const tanggal1 = new Date(dataInsert.tanggal_kembali)
+        const tanggal2 = new Date(dataInsert.tanggal_sewa)
+        if (tanggal1.getTime() <= tanggal2.getTime()) {
+            console.log("Invalid Date")
+            response.status(500).json({
+                message: "Tanggal Kembali Kurang Dari Atau Sama Dengan Tanggal Sewa",
+        
+            })
+        }else{
+            console.log("Valid Date")
+            const price = globalFunction.rentPriceCalculate(dataInsert.tanggal_kembali,dataInsert.tanggal_sewa,data[0].harga_sewa)
         const trId = `RC-${uuidv4().replace(/-/g, '').substring(0, 12)}`
         
         const url = 'https://api.sandbox.midtrans.com/v1/payment-links';
@@ -305,6 +332,8 @@ const getPaymentLink = async(req,response) => {
             response.json(json)
          })
          .catch(err => console.error('error:' + err));
+        }
+        
       }
     
    } catch (error) {
