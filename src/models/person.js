@@ -46,6 +46,28 @@ const loginUser = (email,password) => {
    return dbConnection.execute(query);
 }
 
+const getAllBookmarkByIdUser = (id_user) => {
+   const query = `SELECT * FROM tbl_bookmark INNER JOIN tbl_barang ON tbl_bookmark.id_barang = tbl_barang.id_barang WHERE tbl_bookmark.id_user = ${id_user}`
+   return dbConnection.execute(query)
+}
+
+const getSingleBookmarkByIdUser = (id_user,id_barang) => {
+   const query = `SELECT * FROM tbl_bookmark INNER JOIN tbl_barang ON tbl_bookmark.id_barang = tbl_barang.id_barang WHERE tbl_bookmark.id_user  = ${id_user} AND tbl_bookmark.id_barang = ${id_barang}`
+   return dbConnection.execute(query)
+}
+
+const createBookmark = (id_user,id_barang,bookmark_at) => {
+   const query = `INSERT INTO tbl_bookmark(id_user,id_barang,bookmark_at) VALUES (${id_user},${id_barang},'${bookmark_at}')`
+   return dbConnection.execute(query)
+}
+
+const deleteBookmark = (id_bookmark) => {
+   const query = `DELETE FROM tbl_bookmark WHERE id_bookmark = ${id_bookmark}`
+   return dbConnection.execute(query)
+}
+
+
+
 
  module.exports = {
     getAllUser,
@@ -55,5 +77,9 @@ const loginUser = (email,password) => {
     deleteUser,
     updateUser,
     loginUser,
-    createAdmin
+    createAdmin,
+    getAllBookmarkByIdUser,
+    createBookmark,
+    deleteBookmark,
+    getSingleBookmarkByIdUser
  }

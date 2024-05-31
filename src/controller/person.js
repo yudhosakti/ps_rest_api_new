@@ -230,6 +230,101 @@ const updateSingleUser = async (req,response)=> {
     }
 }
 
+const getAllBookmarkById = async(req,response) => {
+    const dataInsert = req.body
+   try {
+    const [data] = await userModel.getAllBookmarkByIdUser(dataInsert.id_user)
+    let dataFinal = []
+    for (let index = 0; index < data.length; index++) {
+        dataFinal.push({
+            id_bookmark: data[index].id_bookmark,
+            id_barang: data[index].id_barang,
+            name: data[index].nama_barang,
+            image: data[index].gambar_barang,
+            type: data[index].jenis_barang,
+            
+        })
+        
+    }
+
+    response.json({
+        data: dataFinal
+    })
+    
+   } catch (error) {
+    response.status(500).json({
+        message : error
+    }) 
+   }
+}
+
+const createBookmark = async(req,response) => {
+    const dataInsert = req.body
+    console.log(dataInsert)
+    try {
+        await userModel.createBookmark(dataInsert.id_user,dataInsert.id_barang,dataInsert.bookmark_at).then(() => {
+            response.json({
+                message: "Bookmark Success",
+                data: dataInsert
+            })
+        })
+        
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+
+
+}
+
+const deleteBookmark = async(req,response) => {
+    const dataInsert = req.body
+    try {
+       await userModel.deleteBookmark(dataInsert.id_bookmark).then(() => {
+          response.json({
+            message: "Bookmark Deleted",
+            data: dataInsert 
+          })
+       }) 
+        
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        }) 
+    }
+}
+
+const getSingleBookmarkByIdUser = async(req,response) => {
+    const dataInsert = req.body
+    try {
+        const [data] = await userModel.getSingleBookmarkByIdUser(dataInsert.id_user,dataInsert.id_barang)
+
+        if (data.length == 0) {
+            response.status(404).json({
+                message : 'Data Not Found'
+            })
+        } else {
+            response.json({
+                data:{
+                    id_bookmark: data[0].id_bookmark,
+                id_barang: data[0].id_barang,
+                name: data[0].nama_barang,
+                image:data[0].gambar_barang,
+                type: data[0].jenis_barang
+                }
+                
+
+            })
+        }
+        
+    } catch (error) {
+        response.status(500).json({
+            message : error
+        })
+    }
+}
+
 
 module.exports = {
     getALlUser,
@@ -239,5 +334,9 @@ module.exports = {
     deleteSingleUser,
     updateSingleUser,
     loginUser,
-    createNewAdmin
+    createNewAdmin,
+    getAllBookmarkById,
+    createBookmark,
+    deleteBookmark,
+    getSingleBookmarkByIdUser
 }
