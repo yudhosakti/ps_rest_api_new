@@ -6,6 +6,11 @@ const getAllRent = ()=> {
 }
 
 const getSingleRent = (id)=> {
+    const query = `SELECT * FROM tbl_penyewaan INNER JOIN tbl_user ON tbl_penyewaan.id_user=tbl_user.id_user INNER JOIN tbl_barang ON tbl_penyewaan.id_barang=tbl_barang.id_barang WHERE tbl_penyewaan.id_transaksi='${id}'`
+    return dbConnection.execute(query);
+}
+
+const getSingleRentById = (id)=> {
     const query = `SELECT * FROM tbl_penyewaan INNER JOIN tbl_user ON tbl_penyewaan.id_user=tbl_user.id_user INNER JOIN tbl_barang ON tbl_penyewaan.id_barang=tbl_barang.id_barang WHERE tbl_penyewaan.id_sewa=${id}`
     return dbConnection.execute(query);
 }
@@ -21,7 +26,7 @@ const deleteRent = (id) => {
 }
 
 const updateRent = (id,status) => {
-    const query = `UPDATE tbl_penyewaan SET status='${status}' WHERE tbl_penyewaan.id_sewa = ${id}`;
+    const query = `UPDATE tbl_penyewaan SET status='${status}' WHERE tbl_penyewaan.id_transaksi = '${id}'`;
     return dbConnection.execute(query);
 }
 
@@ -31,5 +36,6 @@ module.exports = {
     getSingleRent,
     insertRent,
     deleteRent,
-    updateRent
+    updateRent,
+    getSingleRentById
 }

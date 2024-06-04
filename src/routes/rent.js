@@ -9,6 +9,8 @@ router.get('/payment/detail',rentController.getPaymentDetail);
 router.post('/',rentController.createNewRent);
 router.post('/payment',rentController.getPaymentLink)
 router.delete('/:id',rentController.deleteRent);
-router.put('/:id',rentController.updateRent);
+router.put('/payment',rentController.updateRent);
+
+router.post('/testing/coba',rentController.testing)
 
 module.exports = router;

@@ -7,8 +7,13 @@ const fs = require('fs');
 
 const getALlUser =async (req,response)=> {
     const {page} = req.params; 
+    const filter = req.query.filter
+    let userFilter = ''
+    if (filter == 'admin' || filter == 'user') {
+        userFilter = filter
+    }
     try {
-    const [data] = await userModel.getAllUser(); 
+    const [data] = await userModel.getAllUser(userFilter); 
     let dataFinal = [];
     let dataTemp = [];
     for (let index = 0; index < data.length; index++) {
@@ -342,7 +347,7 @@ const createBookmark = async(req,response) => {
     const dataInsert = req.body
     console.log(dataInsert)
     try {
-        await userModel.createBookmark(dataInsert.id_user,dataInsert.id_barang,dataInsert.bookmark_at).then(() => {
+        await userModel.createBookmark(dataInsert.id_user,dataInsert.id_barang,globalFunction.getDateNow()).then(() => {
             response.json({
                 message: "Bookmark Success",
                 data: dataInsert
@@ -413,6 +418,43 @@ const getSingleBookmarkByIdUser = async(req,response) => {
     }
 }
 
+const getSearchPerson = async(req,response) => {
+   const searchPerson = req.body
+   let role = ''
+   let dataFinal = []
+   if (searchPerson.role == 'admin' || searchPerson.role == 'user') {
+      role =searchPerson.role
+   }
+   try {
+     const [data] = await userModel.getSearchPerson(searchPerson.person_name,role)
+     if (data.length == 0) {
+        response.status(404).json({
+            message: "Data Not Found"
+        })
+     } else {
+        for (let index = 0; index < data.length; index++) {
+            dataFinal.push({
+                id_user: data[index].id_user,
+                    name: data[index].name,
+                    email:data[index].email,
+                    avatar: data[index].avatar,
+                    rent: data[index].rent_count,
+                    bookmark: data[index].bookmark_count
+            })
+            
+        }
+        response.json({
+            data: dataFinal
+        })
+     }
+    
+   } catch (error) {
+    response.status(500).json({
+        message : error
+    })
+   }
+}
+
 
 module.exports = {
     getALlUser,
@@ -426,5 +468,6 @@ module.exports = {
     getAllBookmarkById,
     createBookmark,
     deleteBookmark,
-    getSingleBookmarkByIdUser
+    getSingleBookmarkByIdUser,
+    getSearchPerson
 }

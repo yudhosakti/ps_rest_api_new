@@ -67,6 +67,78 @@ const deleteReview = (id_review) => {
     return dbConnection.execute(query)
 }
 
+const getSearchItem = (itemName) => {
+    const query = `SELECT * FROM tbl_barang WHERE tbl_barang.nama_barang  LIKE '%${itemName}%';`
+    return dbConnection.execute(query)
+}
+
+const getAllGame = () => {
+    const query = `SELECT * FROM tbl_game`
+    return dbConnection.execute(query)
+}
+
+const getSearchGame = (searchGame) => {
+    const query = `SELECT * FROM tbl_game WHERE nama_game LIKE '%${searchGame}%'`
+    return dbConnection.execute(query)
+}
+
+const getAllGameByIdItem = (idItem) => {
+    const query = `SELECT * FROM tbl_ps_game INNER JOIN tbl_game ON tbl_game.id_game = tbl_ps_game.id_game INNER JOIN tbl_barang ON tbl_barang.id_barang = tbl_ps_game.id_barang WHERE tbl_ps_game.id_barang = ${idItem}`
+    return dbConnection.execute(query)
+}
+
+const getDetailGameById = (idGame) => {
+    const query = `SELECT * FROM tbl_game INNER JOIN tbl_ps_game ON tbl_game.id_game = tbl_ps_game.id_game INNER JOIN tbl_barang ON tbl_barang.id_barang = tbl_ps_game.id_barang WHERE tbl_game.id_game = ${idGame}`
+    return dbConnection.execute(query)
+} 
+
+const getSingleGame = (idGame) => {
+    const query = `SELECT * FROM tbl_game WHERE id_game = ${idGame} LIMIT 1`
+    return dbConnection.execute(query)
+}
+
+const createNewGame  = (name,image,deskripsi) => {
+    if (image == '') {
+        const query = `INSERT INTO tbl_game(nama_game,gambar_game,deskripsi_game) VALUES ('${name}',NULL,'${deskripsi}')`
+        return dbConnection.execute(query)
+    } else {
+        const query = `INSERT INTO tbl_game(nama_game,gambar_game,deskripsi_game) VALUES ('${name}','${image}','${deskripsi}')`
+        return dbConnection.execute(query)
+    }
+    
+}
+
+const updateGameData = (id_game,name,image,deskripsi) => {
+    if (image == '') {
+        const query = `UPDATE tbl_game SET nama_game='${name}',gambar_game=NULL,deskripsi_game='${deskripsi}' WHERE id_game = ${id_game}`
+        return dbConnection.execute(query)
+    } else {
+        const query = `UPDATE tbl_game SET nama_game='${name}',gambar_game='${image}',deskripsi_game='${deskripsi}' WHERE id_game = ${id_game}`
+        return dbConnection.execute(query)
+    }
+    
+}
+
+const createGameForPS = (id_game,id_barang,update_at) => {
+    const query = `INSERT INTO tbl_ps_game(id_barang,id_game,update_at) VALUES (${id_barang},${id_game},'${update_at}')`
+    return dbConnection.execute(query)
+} 
+
+const deletePSGame = (id_ps_game) => {
+    const query = `DELETE FROM tbl_ps_game WHERE id_ps_game = ${id_ps_game}`
+    return dbConnection.execute(query)
+}
+
+const getSinglePSGame = (id_ps_game) => {
+   const query = `SELECT * FROM tbl_ps_game WHERE id_ps_game = ${id_ps_game} LIMIT 1`
+   return dbConnection.execute(query)
+}
+
+const deleteGame = (id_game) => {
+    const query = `DELETE FROM tbl_game WHERE id_game = ${id_game}`
+    return dbConnection.execute(query)
+}
+
 module.exports = {
     getAllItem,
     getSingleItem,
@@ -78,5 +150,16 @@ module.exports = {
     createReview,
     updateReview,
     deleteReview,
-    getSingleReviewById
+    getSingleReviewById,
+    getSearchItem,
+    getAllGame,getAllGameByIdItem,
+    getDetailGameById,
+    getSingleGame,
+    createGameForPS,
+    createNewGame,
+    updateGameData,
+    deletePSGame,
+    getSinglePSGame,
+    deleteGame,
+    getSearchGame
 }

@@ -15,6 +15,8 @@ router.get('/bookmark/all',userController.getAllBookmarkById);
 
 router.get('/bookmark/single',userController.getSingleBookmarkByIdUser);
 
+router.get('/search/all',userController.getSearchPerson);
+
 router.post('/bookmark',userController.createBookmark);
 
 

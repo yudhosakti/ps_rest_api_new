@@ -181,7 +181,7 @@ const createNewRent = async (req,response)=> {
 const deleteRent = async (req,response)=> {
     const {id} = req.params;
     try {
-        const [data] = await rentModel.getSingleRent(id)
+        const [data] = await rentModel.getSingleRentById(id)
         if (data.length == 0) {
             response.status(404).json({
                 message: "Data Not Found"
@@ -204,7 +204,6 @@ const deleteRent = async (req,response)=> {
 
 const updateRent = async (req,response) => {
     const data = req.body;
-    const {id} = req.params;
     try {
         const url = `https://api.sandbox.midtrans.com/v1/payment-links/${data.order_id}`;
         const audUrl = 'SB-Mid-server-ldx8Nh1i6hFDEBRbTmRmWUF6'
@@ -237,14 +236,16 @@ const updateRent = async (req,response) => {
                 items: jsonResponse.item_details,
                 purchase: jsonResponse.purchases
             })
-            const [data] = await rentModel.getSingleRent(id)
-            if (data.length == 0) {
+            
+            const [dataku] = await rentModel.getSingleRent(data.order_id)
+            console.log(dataku) 
+            if (dataku.length == 0) {
                 response.status(404).json({
                     message: "Rent Not Found"
                 })
             } else {
                 if (response_custom[0].status == 'SETTLEMENT') {
-                    await rentModel.updateRent(id,'approve').then(() => {
+                    await rentModel.updateRent(data.order_id,'approve').then(() => {
                         response.json({
                             message: "Update Rent Success",
                             status: "Approve",
@@ -325,21 +326,58 @@ const getPaymentLink = async(req,response) => {
             custom_field2:globalFunction.formatTanggal(dataInsert.tanggal_kembali)
         })
         };
+        const fetchResponse = await fetch(url, options);
+        const jsonResponse = await fetchResponse.json();
 
-       fetch(url,options)
-         .then(res => res.json())
-         .then(json => {
-            response.json(json)
-         })
-         .catch(err => console.error('error:' + err));
+        response.json({
+            data: jsonResponse
+    
+        })
         }
         
       }
     
    } catch (error) {
+    const price = globalFunction.rentPriceCalculate(dataInsert.tanggal_kembali,dataInsert.tanggal_sewa,data[0].harga_sewa)
+        const trId = `RC-${uuidv4().replace(/-/g, '').substring(0, 12)}`
+        
+        const url = 'https://api.sandbox.midtrans.com/v1/payment-links';
+        const audUrl = 'SB-Mid-server-ldx8Nh1i6hFDEBRbTmRmWUF6'
+        const midtransServerKey = btoa(`${audUrl}:`)
+
+        const options = {
+            method: 'POST',
+            headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${midtransServerKey}`
+        },
+        body: JSON.stringify({
+            transaction_details: {order_id: trId, gross_amount: price},
+            item_details: [
+                {
+                   id: `${data[0].id_barang}`,
+                   name: data[0].nama_barang,
+                   price : price,
+                   quantity: 1,
+                   brand: `${data[0].id_barang}`
+
+                },
+            ],
+            customer_details :{
+            user_id: user[0].id_user,
+            first_name: user[0].name,
+            email: user[0].email
+            },
+            custom_field1: globalFunction.formatTanggal(dataInsert.tanggal_sewa),
+            custom_field2:globalFunction.formatTanggal(dataInsert.tanggal_kembali)
+        })
+        };
+        const fetchResponse = await fetch(url, options);
+        const jsonResponse = await fetchResponse.json();
     response.status(500).json({
         message: "Internal Error",
-        err: error,
+        err: jsonResponse,
 
     })
    }
@@ -395,6 +433,52 @@ const getPaymentDetail = async(req,response) => {
 
 }
 
+const testing= async(req,response) => {
+    try {
+        const url = 'https://api.sandbox.midtrans.com/v1/payment-links';
+        const audUrl = 'SB-Mid-server-ldx8Nh1i6hFDEBRbTmRmWUF6'
+        const midtransServerKey = btoa(`${audUrl}:`)
+
+        const options = {
+            method: 'POST',
+            headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${midtransServerKey}`
+        },
+        body: JSON.stringify({
+            transaction_details: {order_id: 'RC-38389201', gross_amount: 9000},
+            item_details: [
+                {
+                   name: 'test',
+                   price : 9000,
+                   quantity: 1,
+                   brand: `hdhdhd`
+
+                },
+            ],
+            customer_details :{
+            user_id: '762',
+            first_name: 'yudho',
+            email: 'yudho@gmail.com'
+            },
+        })
+        };
+        // const fetchResponse = await fetch(url, options);
+        // const jsonResponse = await fetchResponse.json();
+
+        response.json({
+            data: "haloooo"
+    
+        })
+    } catch (error) {
+        console.log('Error',error)
+        response.status(404).json({
+            message: "Error",
+            error: error
+        })
+    }
+}
 
 
 
@@ -408,5 +492,6 @@ module.exports = {
     deleteRent,
     updateRent,
     getPaymentLink,
-    getPaymentDetail
+    getPaymentDetail,
+    testing
 }

@@ -1,8 +1,14 @@
 const dbConnection = require('../config/database');
 
-const getAllUser = ()=> {
-    const query = 'SELECT * FROM tbl_user';
+const getAllUser = (filter)=> {
+   if (filter == '') {
+      const query = 'SELECT * FROM tbl_user';
     return dbConnection.execute(query);
+   } else {
+      const query = `SELECT * FROM tbl_user WHERE tbl_user.role = '${filter}'`
+      return dbConnection.execute(query)
+   }
+    
  }
 
  const getSingleUser = (uid)=> {
@@ -71,6 +77,17 @@ const deleteBookmark = (id_bookmark) => {
    return dbConnection.execute(query)
 }
 
+const getSearchPerson = (personName,role) => {
+   if (role == '') {
+      const query = `SELECT * FROM tbl_user WHERE name LIKE '%${personName}%'`
+      return dbConnection.execute(query)
+   } else {
+      const query = `SELECT * FROM tbl_user WHERE name LIKE '%${personName}%' AND role = '${role}'`
+      return dbConnection.execute(query)
+   }
+   
+}
+
 
 
 
@@ -87,5 +104,6 @@ const deleteBookmark = (id_bookmark) => {
     createBookmark,
     deleteBookmark,
     getSingleBookmarkByIdUser,
-    getSingleBookmarkById
+    getSingleBookmarkById,
+    getSearchPerson
  }
