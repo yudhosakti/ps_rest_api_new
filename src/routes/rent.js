@@ -6,13 +6,8 @@ router.get('/',rentController.getRentPsAllUser);
 router.get('/:page',rentController.getRentPsAllUser);
 router.get('/single/:id',rentController.getRentSingle);
 router.get('/payment/detail',rentController.getPaymentDetail);
-router.post('/',rentController.createNewRent);
-router.post('/payment',rentController.getPaymentLink);
-router.post('/payment/multiple',rentController.createPaymentMultipleItem)
-router.delete('/:id',rentController.deleteRent);
-router.delete('/multiple/erase',rentController.deleteRentMultipleItem)
+router.post('/payment',rentController.createPaymentMultipleItem)
+router.delete('/payment',rentController.deleteRentMultipleItem)
 router.put('/payment',rentController.updateRent);
-
-router.post('/testing/coba',rentController.testing)
 
 module.exports = router;

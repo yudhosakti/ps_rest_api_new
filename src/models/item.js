@@ -11,7 +11,7 @@ const getSingleItem = (id)=> {
 }
 
 const getAllRentSingleItem = (id) => {
-    const query = `SELECT * FROM tbl_barang INNER JOIN tbl_penyewaan ON tbl_barang.id_barang = tbl_penyewaan.id_barang INNER JOIN tbl_user ON tbl_user.id_user = tbl_penyewaan.id_user WHERE tbl_barang.id_barang = ${id}`;
+    const query = `SELECT * FROM tbl_barang INNER JOIN tbl_barang_sewa ON tbl_barang.id_barang = tbl_barang_sewa.id_barang INNER JOIN tbl_penyewaan ON tbl_penyewaan.id_sewa = tbl_barang_sewa.id_sewa INNER JOIN tbl_user ON tbl_penyewaan.id_user = tbl_user.id_user WHERE tbl_barang.id_barang = ${id} `;
     return dbConnection.execute(query);
 }
 

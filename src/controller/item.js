@@ -73,14 +73,14 @@ const getSingleItemDetail = async(req,response)=> {
             dataRentCustom.push({
                 id_rent: dataRent[index].id_sewa,
                 id_user: dataRent[index].id_user,
+                order_id: dataRent[index].id_transaksi,
                 name: dataRent[index].name,
                 avatar: dataRent[index].avatar,
                 date: {
                     start: globalFunction.formatTanggal(dataRent[index].tanggal_sewa),
                     end: globalFunction.formatTanggal(dataRent[index].tanggal_kembali)
 
-                },
-                price: globalFunction.rentPriceCalculate(dataRent[index].tanggal_kembali,dataRent[index].tanggal_sewa,dataRent[index].harga_sewa) 
+                }, 
             })
             
         }
