@@ -562,6 +562,28 @@ const createPaymentMultipleItem = async(req,response) => {
     
 }
 
+const deleteRentMultipleItem = async(req,response) => {
+    const dataInsert = req.body
+    try {
+        const [data] = await rentModel.getAllItemRentByOrderId(dataInsert.order_id)
+
+        Promise.all(data.map(async(element) => {
+            await rentModel.deleteItemRentById(element.id_bs)
+        })).then(async()=> {
+            await rentModel.deleteRent(data[0].id_sewa).then(()=>{
+                response.json({
+                    message: "Rent Deletion Success"
+                })
+            })
+        })
+        
+    } catch (error) {
+        response.status(500).json({
+            message: error
+        })
+    }
+}
+
 
 
 
@@ -576,5 +598,6 @@ module.exports = {
     getPaymentLink,
     getPaymentDetail,
     testing,
-    createPaymentMultipleItem
+    createPaymentMultipleItem,
+    deleteRentMultipleItem
 }

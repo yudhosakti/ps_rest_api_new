@@ -40,6 +40,16 @@ const createItemRentMultiple = (id_item,id_sewa,quantity)=> {
     return dbConnection.execute(query)
 }
 
+const getAllItemRentByOrderId = (order_id) => {
+    const query = `SELECT * FROM tbl_barang_sewa INNER JOIN tbl_penyewaan ON tbl_barang_sewa.id_sewa = tbl_penyewaan.id_sewa WHERE tbl_penyewaan.id_transaksi = '${order_id}' `
+    return dbConnection.execute(query)
+}
+
+const deleteItemRentById = (id_bs) => {
+    const query = `DELETE FROM tbl_barang_sewa WHERE id_bs = ${id_bs}`
+    return dbConnection.execute(query)
+}
+
 
 module.exports = {
     getAllRent,
@@ -49,5 +59,7 @@ module.exports = {
     updateRent,
     getSingleRentById,
     createRentNewMultiple,
-    createItemRentMultiple
+    createItemRentMultiple,
+    getAllItemRentByOrderId,
+    deleteItemRentById
 }

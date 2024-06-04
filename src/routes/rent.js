@@ -10,6 +10,7 @@ router.post('/',rentController.createNewRent);
 router.post('/payment',rentController.getPaymentLink);
 router.post('/payment/multiple',rentController.createPaymentMultipleItem)
 router.delete('/:id',rentController.deleteRent);
+router.delete('/multiple/erase',rentController.deleteRentMultipleItem)
 router.put('/payment',rentController.updateRent);
 
 router.post('/testing/coba',rentController.testing)
