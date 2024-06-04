@@ -6,7 +6,7 @@ const getAllRent = ()=> {
 }
 
 const getSingleRent = (id)=> {
-    const query = `SELECT * FROM tbl_penyewaan INNER JOIN tbl_user ON tbl_penyewaan.id_user=tbl_user.id_user INNER JOIN tbl_barang ON tbl_penyewaan.id_barang=tbl_barang.id_barang WHERE tbl_penyewaan.id_transaksi='${id}'`
+    const query = `SELECT * FROM tbl_penyewaan WHERE tbl_penyewaan.id_transaksi='${id}'`
     return dbConnection.execute(query);
 }
 
@@ -30,6 +30,16 @@ const updateRent = (id,status) => {
     return dbConnection.execute(query);
 }
 
+const createRentNewMultiple = (id_user,order_id,tanggal_sewa,tanggal_kembali)=> {
+    const query  =`INSERT INTO tbl_penyewaan(id_user,id_transaksi,status,tanggal_sewa,tanggal_kembali) VALUES (${id_user},'${order_id}','pending','${tanggal_sewa}','${tanggal_kembali}')`
+    return dbConnection.execute(query)
+}
+
+const createItemRentMultiple = (id_item,id_sewa,quantity)=> {
+    const query = `INSERT INTO tbl_barang_sewa(id_sewa,id_barang,quantity) VALUES (${id_sewa},${id_item},${quantity})`
+    return dbConnection.execute(query)
+}
+
 
 module.exports = {
     getAllRent,
@@ -37,5 +47,7 @@ module.exports = {
     insertRent,
     deleteRent,
     updateRent,
-    getSingleRentById
+    getSingleRentById,
+    createRentNewMultiple,
+    createItemRentMultiple
 }

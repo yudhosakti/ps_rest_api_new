@@ -31,6 +31,19 @@ function rentPriceCalculate(tanggal_kembali,tanggal_sewa,harga){
 
   }
 
+  function dayCalculated(tanggal_kembali,tanggal_sewa) {
+    const kembali = new Date(tanggal_kembali)
+     const sewa = new Date(tanggal_sewa)
+     
+     const millisecondsPerDay = 24 * 60 * 60 * 1000; 
+
+     let calculated = (kembali -sewa)/millisecondsPerDay
+
+     
+
+     return calculated 
+  }
+
   function formatMySQLTimestamp(dateNow) {
   const date = new Date(dateNow)
     const year = date.getFullYear();
@@ -75,5 +88,6 @@ return formattedDateTime;
     formatTanggalPesan,
     formatMySQLTimestamp,
     getDateNow,
-    getDateTimeNow
+    getDateTimeNow,
+    dayCalculated
   }
