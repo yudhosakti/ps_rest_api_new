@@ -9,6 +9,7 @@ router.get('/', itemController.getAllItem);
 router.get('/search', itemController.getSearchItem);
 router.get('/single/:id', itemController.getSingleItemDetail);
 router.post('/', itemController.createItem);
+router.post('/stock',itemController.increaseItemStock);
 router.put('/:id', itemController.updateItem);
 router.delete('/:id', itemController.deleteItem);
 

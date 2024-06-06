@@ -326,6 +326,24 @@ const updateReview = async(req,response) => {
     }
 }
 
+const increaseItemStock = async(req,response) => {
+    const dataInsert = req.body
+
+    try {
+        await itemModel.increaseItemStock(dataInsert.id_user,dataInsert.id_barang,dataInsert.stock,globalFunction.getDateNow()).then(()=> {
+            response.json({
+                message: "Increase Item Stock Success",
+                data: dataInsert
+            })
+        })
+        
+    } catch (error) {
+        response.status(500).json({
+            message: error
+        })
+    }
+}
+
 const deleteReview = async(req,response) => {
     const dataInsert = req.body
 
@@ -792,5 +810,6 @@ module.exports = {
     deleteGame,
     createGameForPS,
     deletePSGame,
-    getSearchItem
+    getSearchItem,
+    increaseItemStock
 }

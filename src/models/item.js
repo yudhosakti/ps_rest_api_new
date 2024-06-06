@@ -37,6 +37,11 @@ const createItem = (name,image,tipe,deskripsi,stock,harga)=> {
     
 }
 
+const increaseItemStock = (id_user,id_barang,stock,create_at) => {
+    const query = `INSERT INTO tbl_tambah_stock_barang(id_user,id_barang,quantity,create_at) VALUES (${id_user},${id_barang},${stock},'${create_at}')`;
+    return dbConnection.execute(query)
+}
+
 const deleteItem = (id) => {
     const query =  `DELETE FROM tbl_barang WHERE tbl_barang.id_barang=${id}`;
     return dbConnection.execute(query);
@@ -44,10 +49,10 @@ const deleteItem = (id) => {
 
 const updateItem = (id,name,image,tipe,deskripsi,stock,harga) => {
     if (image == '') {
-        const query =  `UPDATE tbl_barang SET nama_barang='${name}',jenis_barang='${tipe}',deskripsi_barang='${deskripsi}',stock=${stock},harga_sewa=${harga} WHERE tbl_barang.id_barang=${id}`;
+        const query =  `UPDATE tbl_barang SET nama_barang='${name}',jenis_barang='${tipe}',deskripsi_barang='${deskripsi}',harga_sewa=${harga} WHERE tbl_barang.id_barang=${id}`;
     return dbConnection.execute(query);
     } else {
-        const query =  `UPDATE tbl_barang SET nama_barang='${name}',gambar_barang='${image}',jenis_barang='${tipe}',deskripsi_barang='${deskripsi}',stock=${stock},harga_sewa=${harga} WHERE tbl_barang.id_barang=${id}`;
+        const query =  `UPDATE tbl_barang SET nama_barang='${name}',gambar_barang='${image}',jenis_barang='${tipe}',deskripsi_barang='${deskripsi}',harga_sewa=${harga} WHERE tbl_barang.id_barang=${id}`;
     return dbConnection.execute(query);
     }
     
@@ -167,5 +172,6 @@ module.exports = {
     deletePSGame,
     getSinglePSGame,
     deleteGame,
-    getSearchGame
+    getSearchGame,
+    increaseItemStock
 }

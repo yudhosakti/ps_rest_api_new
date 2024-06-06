@@ -407,6 +407,38 @@ const deleteRentLog = async(req,response) => {
     }
 }
 
+const getAllLogByIdUser = async(req,response) => {
+    const id_user = req.query.id_user
+
+    try {
+        const [data] = await rentModel.getAllLogByIdUser(id_user)
+        let dataFinal = []
+        if (data.length == 0) {
+            response.status(404).json({
+                message: "Data Not Found"
+            })
+        } else {
+            for (let index = 0; index < data.length; index++) {
+                dataFinal.push({
+                    id_log: data[index].id_log,
+                    id_user: data[index].id_user,
+                    id_transaksi: data[index].id_transaksi,
+                    create_at:   globalFunction.formatTanggal(data[index].create_at) 
+                })
+                
+            }
+            response.json({
+                data: dataFinal
+            })
+        }
+        
+    } catch (error) {
+        response.status(500).json({
+            message: error
+        })
+    }
+}
+
 
 
 
@@ -419,5 +451,6 @@ module.exports = {
     getPaymentDetail,
     createPaymentMultipleItem,
     deleteRentMultipleItem,
-    deleteRentLog
+    deleteRentLog,
+    getAllLogByIdUser
 }

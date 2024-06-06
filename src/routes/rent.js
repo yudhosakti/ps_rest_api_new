@@ -6,6 +6,7 @@ router.get('/',rentController.getRentPsAllUser);
 router.get('/:page',rentController.getRentPsAllUser);
 router.get('/single/:id',rentController.getRentSingle);
 router.get('/payment/detail',rentController.getPaymentDetail);
+router.get('/log/all',rentController.getAllLogByIdUser);
 router.post('/payment',rentController.createPaymentMultipleItem)
 router.delete('/payment',rentController.deleteRentMultipleItem)
 router.delete('/log',rentController.deleteRentLog);
