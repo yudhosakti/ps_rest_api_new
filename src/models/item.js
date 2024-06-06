@@ -1,8 +1,14 @@
 const dbConnection = require('../config/database');
 
-const getAllItem = ()=> {
-    const query =  `SELECT * FROM tbl_barang`;
-    return dbConnection.execute(query);
+const getAllItem = (filter)=> {
+    if (filter != '') {
+        const query =  `SELECT * FROM tbl_barang WHERE jenis_barang = '${filter}'`;
+        return dbConnection.execute(query);
+    } else {
+        const query =  `SELECT * FROM tbl_barang`;
+        return dbConnection.execute(query);
+    }
+   
 }
 
 const getSingleItem = (id)=> {

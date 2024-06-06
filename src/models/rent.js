@@ -7,12 +7,12 @@ const getAllRent = ()=> {
 }
 
 const getSingleRent = (id)=> {
-    const query = `SELECT * FROM tbl_penyewaan WHERE tbl_penyewaan.id_transaksi='${id}'`
+    const query = `SELECT * FROM tbl_penyewaan INNER JOIN tbl_user ON tbl_penyewaan.id_user = tbl_user.id_user INNER JOIN tbl_barang_sewa ON tbl_penyewaan.id_sewa = tbl_barang_sewa.id_sewa INNER JOIN tbl_barang ON tbl_barang.id_barang = tbl_barang_sewa.id_barang WHERE tbl_penyewaan.id_sewa = ${id}`
     return dbConnection.execute(query);
 }
 
 const getSingleRentById = (id)=> {
-    const query = `SELECT * FROM tbl_penyewaan INNER JOIN tbl_user ON tbl_user.id_user = tbl_penyewaan.id_user WHERE id_sewa = ${id}`
+    const query = `SELECT * FROM tbl_penyewaan INNER JOIN tbl_user ON tbl_user.id_user = tbl_penyewaan.id_user WHERE id_transaksi = '${id}'`
     return dbConnection.execute(query);
 }
 
@@ -51,6 +51,26 @@ const deleteItemRentById = (id_bs) => {
     return dbConnection.execute(query)
 }
 
+const createRentLog = (id_transaksi,id_user,create_at) => {
+    const query = `INSERT INTO tbl_log_penyewaan(id_user,id_transaksi,create_at) VALUES (${id_user},'${id_transaksi}','${create_at}')`
+    return dbConnection.execute(query)
+}
+
+const deleteRentLog = (id_log) => {
+    const query = `DELETE FROM tbl_log_penyewaan WHERE id_log = ${id_log}`
+    return dbConnection.execute(query)
+}
+
+const getSingleLog = (id_log) => {
+    const  query = `SELECT * FROM tbl_log_penyewaan WHERE id_log = ${id_log}`
+    return dbConnection.execute(query)
+}
+
+const getAllLogByIdUser = (id_user) => {
+    const query = `SELECT * FROM tbl_log_penyewaan WHERE id_user = ${id_user}`
+    return dbConnection.execute(query)
+}
+
 
 module.exports = {
     getAllRent,
@@ -62,5 +82,9 @@ module.exports = {
     createRentNewMultiple,
     createItemRentMultiple,
     getAllItemRentByOrderId,
-    deleteItemRentById
+    deleteItemRentById,
+    createRentLog,
+    deleteRentLog,
+    getSingleLog,
+    getAllLogByIdUser
 }

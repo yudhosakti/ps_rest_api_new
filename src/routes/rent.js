@@ -8,6 +8,7 @@ router.get('/single/:id',rentController.getRentSingle);
 router.get('/payment/detail',rentController.getPaymentDetail);
 router.post('/payment',rentController.createPaymentMultipleItem)
 router.delete('/payment',rentController.deleteRentMultipleItem)
+router.delete('/log',rentController.deleteRentLog);
 router.put('/payment',rentController.updateRent);
 
 module.exports = router;

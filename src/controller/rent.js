@@ -76,11 +76,22 @@ const getRentSingle = async (req,response)=> {
     try {
         const [data] = await rentModel.getSingleRent(id)
         let responseData = {};
+        let dataItem = [];
+
         if (data.length == 0) {
             response.status(404).json({
                 message: "Data Not Found"
             })
         } else {
+            for (let index = 0; index < data.length; index++) {
+                dataItem.push({
+                    id_barang: data[index].id_barang,
+                    name: data[index].nama_barang,
+                    image: data[index].gambar_barang,
+                    harga_sewa: data[index].harga_sewa,
+                })
+                
+            }
             responseData = {
                 id_sewa: data[0].id_sewa,
                 order_id: data[0].id_transaksi,
@@ -94,6 +105,7 @@ const getRentSingle = async (req,response)=> {
                 start: globalFunction.formatTanggal(data[0].tanggal_sewa),
                 end: globalFunction.formatTanggal(data[0].tanggal_kembali)
             },
+            items: dataItem,
             status: data[0].status,
             }
             response.json({
@@ -144,7 +156,7 @@ const updateRent = async (req,response) => {
                 purchase: jsonResponse.purchases
             })
             
-            const [dataku] = await rentModel.getSingleRent(data.order_id)
+            const [dataku] = await rentModel.getSingleRentById(data.order_id)
             console.log(dataku) 
             if (dataku.length == 0) {
                 response.status(404).json({
@@ -282,7 +294,7 @@ const createPaymentMultipleItem = async(req,response) => {
             
             const url = 'https://api.sandbox.midtrans.com/v1/payment-links';
             const audUrl = 'SB-Mid-server-ldx8Nh1i6hFDEBRbTmRmWUF6'
-            const midtransServerKey = btoa(`${audUrl}:`)
+            const midtransServerKey = Buffer.from(`${audUrl}:`).toString('base64');
           
             const options = {
                 method: 'POST',
@@ -307,7 +319,7 @@ const createPaymentMultipleItem = async(req,response) => {
             const jsonResponse = await fetchResponse.json();
     
             await rentModel.createRentNewMultiple(dataUser[0].id_user,jsonResponse.order_id,globalFunction.formatTanggal(dataInsert.tanggal_sewa),globalFunction.formatTanggal(dataInsert.tanggal_kembali)).then(async()=>{
-                const [data] = await rentModel.getSingleRent(jsonResponse.order_id)
+                const [data] = await rentModel.getSingleRentById(jsonResponse.order_id)
                 if (data.length == 0) {
                     response.status(404).json({
                         message: "Terjadi Kesalahan"
@@ -315,17 +327,20 @@ const createPaymentMultipleItem = async(req,response) => {
                 } else {
                     Promise.all(dataBarangFinal.map(async(element) => {
                         await rentModel.createItemRentMultiple(element.id,data[0].id_sewa,element.quantity)
-                   })).then(()=> {
-                      response.json({
-                        message: "Create Rent Success Please Go to Payment Link To Complete Your Order",
-                        data: {
-                            order_id: jsonResponse.order_id,
-                            payment_link: jsonResponse.payment_url,
-                            id_user: dataUser[0].id_user,
-                            items: finalItem
-
-                        }
-                      })
+                   })).then(async()=> {
+                    await rentModel.createRentLog(jsonResponse.order_id,dataUser[0].id_user,globalFunction.getDateNow()).then(()=> {
+                        response.json({
+                            message: "Create Rent Success Please Go to Payment Link To Complete Your Order",
+                            data: {
+                                order_id: jsonResponse.order_id,
+                                payment_link: jsonResponse.payment_url,
+                                id_user: dataUser[0].id_user,
+                                items: finalItem
+    
+                            }
+                          })
+                    })
+                      
                    })
                 }
                 
@@ -368,6 +383,30 @@ const deleteRentMultipleItem = async(req,response) => {
     }
 }
 
+const deleteRentLog = async(req,response) => {
+    const id_log = req.query.id_log
+
+    try {
+        const [data]  = await rentModel.getSingleLog(id_log)
+        if (data.length == 0) {
+            response.status(404).json({
+                message: "Data Not Found"
+            })
+        } else {
+            await rentModel.deleteRentLog(id_log).then(() => {
+                response.json({
+                    message: "Log Deleted Success"
+                })
+            })
+        }
+        
+    } catch (error) {
+        response.status(500).json({
+            message: error
+        })
+    }
+}
+
 
 
 
@@ -379,5 +418,6 @@ module.exports = {
     updateRent,
     getPaymentDetail,
     createPaymentMultipleItem,
-    deleteRentMultipleItem
+    deleteRentMultipleItem,
+    deleteRentLog
 }

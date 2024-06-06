@@ -7,9 +7,20 @@ const itemData = require('./data/item_data')
 
 const getAllItem = async(req,response)=>{
     const {page} = req.params;
+    const filter = req.query.filter;
+    console.log(filter)
+    let filterFix = ''
+    if (filter != undefined) {
+        filterFix = filter
+    }
     try {
-    const [data] = await itemModel.getAllItem();
-    let dataFinal = [];
+    const [data] = await itemModel.getAllItem(filterFix);
+    if (data.length == 0) {
+        response.status(500).json({
+            message: 'Data Not Found'
+          })
+    } else {
+        let dataFinal = [];
     let dataTemp = [];
     for (let index = 0; index < data.length; index++) {
         dataTemp.push(data[index]);
@@ -45,6 +56,8 @@ const getAllItem = async(req,response)=>{
         })
      }
     }
+    }
+    
     } catch (error) {
         response.status(500).json({
             message : error
