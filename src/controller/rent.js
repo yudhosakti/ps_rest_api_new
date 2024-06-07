@@ -317,34 +317,41 @@ const createPaymentMultipleItem = async(req,response) => {
             }
             const fetchResponse = await fetch(url, options);
             const jsonResponse = await fetchResponse.json();
-    
-            await rentModel.createRentNewMultiple(dataUser[0].id_user,jsonResponse.order_id,globalFunction.formatTanggal(dataInsert.tanggal_sewa),globalFunction.formatTanggal(dataInsert.tanggal_kembali)).then(async()=>{
-                const [data] = await rentModel.getSingleRentById(jsonResponse.order_id)
-                if (data.length == 0) {
-                    response.status(404).json({
-                        message: "Terjadi Kesalahan"
-                    })
-                } else {
-                    Promise.all(dataBarangFinal.map(async(element) => {
-                        await rentModel.createItemRentMultiple(element.id,data[0].id_sewa,element.quantity)
-                   })).then(async()=> {
-                    await rentModel.createRentLog(jsonResponse.order_id,dataUser[0].id_user,globalFunction.getDateNow()).then(()=> {
-                        response.json({
-                            message: "Create Rent Success Please Go to Payment Link To Complete Your Order",
-                            data: {
-                                order_id: jsonResponse.order_id,
-                                payment_link: jsonResponse.payment_url,
-                                id_user: dataUser[0].id_user,
-                                items: finalItem
-    
-                            }
-                          })
-                    })
-                      
-                   })
-                }
+            try {
+                await rentModel.createRentNewMultiple(dataUser[0].id_user,jsonResponse.order_id,globalFunction.formatTanggal(dataInsert.tanggal_sewa),globalFunction.formatTanggal(dataInsert.tanggal_kembali)).then(async()=>{
+                    const [data] = await rentModel.getSingleRentById(jsonResponse.order_id)
+                    if (data.length == 0) {
+                        response.status(404).json({
+                            message: "Terjadi Kesalahan"
+                        })
+                    } else {
+                        Promise.all(dataBarangFinal.map(async(element) => {
+                            await rentModel.createItemRentMultiple(element.id,data[0].id_sewa,element.quantity)
+                       })).then(async()=> {
+                        await rentModel.createRentLog(jsonResponse.order_id,dataUser[0].id_user,globalFunction.getDateNow()).then(()=> {
+                            response.json({
+                                message: "Create Rent Success Please Go to Payment Link To Complete Your Order",
+                                data: {
+                                    order_id: jsonResponse.order_id,
+                                    payment_link: jsonResponse.payment_url,
+                                    id_user: dataUser[0].id_user,
+                                    items: finalItem
+        
+                                }
+                              })
+                        })
+                          
+                       })
+                    }
+                    
+                })
                 
-            })
+            } catch (error) {
+                response.status(500).json({
+                    message: error
+                }) 
+            }
+            
             
 
         }
