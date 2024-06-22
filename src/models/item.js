@@ -26,12 +26,12 @@ const getAllReviewSingleItem = (id) => {
     return dbConnection.execute(query)
 }
 
-const createItem = (name,image,tipe,deskripsi,stock,harga)=> {
+const createItem = (name,image,tipe,deskripsi,stock,harga,id_user)=> {
     if (image == '') {
-        const query = `INSERT INTO tbl_barang(nama_barang,gambar_barang,jenis_barang,deskripsi_barang,stock,harga_sewa) VALUES ('${name}',NULL,'${tipe}','${deskripsi}',${stock},${harga})`;
+        const query = `INSERT INTO tbl_barang(id_user,nama_barang,gambar_barang,jenis_barang,deskripsi_barang,stock,harga_sewa) VALUES (${id_user},'${name}',NULL,'${tipe}','${deskripsi}',${stock},${harga})`;
     return dbConnection.execute(query);
     } else {
-        const query = `INSERT INTO tbl_barang(nama_barang,gambar_barang,jenis_barang,deskripsi_barang,stock,harga_sewa) VALUES ('${name}','${image}','${tipe}','${deskripsi}',${stock},${harga})`;
+        const query = `INSERT INTO tbl_barang(id_user,nama_barang,gambar_barang,jenis_barang,deskripsi_barang,stock,harga_sewa) VALUES (${id_user},'${name}','${image}','${tipe}','${deskripsi}',${stock},${harga})`;
     return dbConnection.execute(query);
     }
     
@@ -108,12 +108,12 @@ const getSingleGame = (idGame) => {
     return dbConnection.execute(query)
 }
 
-const createNewGame  = (name,image,deskripsi) => {
+const createNewGame  = (name,image,deskripsi,id_user) => {
     if (image == '') {
-        const query = `INSERT INTO tbl_game(nama_game,gambar_game,deskripsi_game) VALUES ('${name}',NULL,'${deskripsi}')`
+        const query = `INSERT INTO tbl_game(id_user,nama_game,gambar_game,deskripsi_game) VALUES (${id_user},'${name}',NULL,'${deskripsi}')`
         return dbConnection.execute(query)
     } else {
-        const query = `INSERT INTO tbl_game(nama_game,gambar_game,deskripsi_game) VALUES ('${name}','${image}','${deskripsi}')`
+        const query = `INSERT INTO tbl_game(id_user,nama_game,gambar_game,deskripsi_game) VALUES (${id_user},'${name}','${image}','${deskripsi}')`
         return dbConnection.execute(query)
     }
     

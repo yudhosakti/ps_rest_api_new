@@ -15,12 +15,12 @@ const getAllChatSingleForum = (id) => {
     return dbConnection.execute(query)
 }
 
-const addForum = (image,name,deskripsi,create_at)=> {
+const addForum = (image,name,deskripsi,create_at,id_user)=> {
     if (image == '') {
-    const query = `INSERT INTO tbl_forum(forum_name,deskripsi,last_message,create_at) VALUES ('${name}','${deskripsi}',NULL,'${create_at}')`;
+    const query = `INSERT INTO tbl_forum(id_user,forum_name,deskripsi,last_message,create_at) VALUES (${id_user},'${name}','${deskripsi}',NULL,'${create_at}')`;
     return dbConnection.execute(query);
     } else {
-        const query = `INSERT INTO tbl_forum(forum_name,deskripsi,last_message,create_at,forum_image) VALUES ('${name}','${deskripsi}',NULL,'${create_at}','${image}')`;
+        const query = `INSERT INTO tbl_forum(id_user,forum_name,deskripsi,last_message,create_at,forum_image) VALUES (${id_user},'${name}','${deskripsi}',NULL,'${create_at}','${image}')`;
     return dbConnection.execute(query);
     }
 }

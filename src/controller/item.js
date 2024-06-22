@@ -169,7 +169,7 @@ const createItem = async(req,response)=> {
         image = host.local+req.file.path.replace(/\\/g, '/'); 
     }
     try {
-      await itemModel.createItem(dataInsert.name,image,dataInsert.tipe,dataInsert.deskripsi,dataInsert.stock,dataInsert.harga).then(()=> {
+      await itemModel.createItem(dataInsert.name,image,dataInsert.tipe,dataInsert.deskripsi,dataInsert.stock,dataInsert.harga,dataInsert.id_user).then(()=> {
         response.json({
             message: 'Data Inserted',
             data: dataInsert
@@ -598,7 +598,7 @@ const createNewGame = async(req,response) => {
         imageUrl = host.local+req.file.path.replace(/\\/g, '/');
     }
     try {
-        await itemModel.createNewGame(dataInsert.name,imageUrl,dataInsert.deskripsi,).then(()=> {
+        await itemModel.createNewGame(dataInsert.name,imageUrl,dataInsert.deskripsi,dataInsert.id_user).then(()=> {
             response.json({
                 message: "Create New Game Success",
                 data: dataInsert

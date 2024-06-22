@@ -151,7 +151,7 @@ const addForum = async(req,response)=> {
     }
     try {
         console.log(imageURL)
-        await forumModel.addForum(imageURL,dataInsert.name,dataInsert.deskripsi,globalFunction.getDateNow()).then(()=> {
+        await forumModel.addForum(imageURL,dataInsert.name,dataInsert.deskripsi,globalFunction.getDateNow(),dataInsert.id_user).then(()=> {
             response.json({
                 message: 'Create Forum Success',
                 data: dataInsert
