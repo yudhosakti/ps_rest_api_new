@@ -23,7 +23,22 @@ const getAllItem = async(req,response)=>{
         let dataFinal = [];
     let dataTemp = [];
     for (let index = 0; index < data.length; index++) {
-        dataTemp.push(data[index]);
+        dataTemp.push({
+            id_barang: data[index].id_barang,
+            nama_barang: data[index].nama_barang,
+            gambar_barang: data[index].gambar_barang,
+            jenis_barang:data[index].jenis_barang,
+            deskripsi_barang: data[index].deskripsi_barang,
+            stock: data[index].stock,
+            harga_sewa: data[index].harga_sewa,
+            rating:  data[index].rating,
+            created_by: {
+                id_user: data[index].id_user,
+                name: data[index].name,
+                avatar: data[index].avatar
+            } 
+
+        });
         if (dataTemp.length == 25 || index+1>=data.length) {
             dataFinal.push(dataTemp);
             dataTemp = [];
@@ -386,7 +401,12 @@ const getAllGame = async(req,response) => {
                     id: data[index].id_game,
                     name: data[index].nama_game,
                     image: data[index].gambar_game,
-                    deskripsi: data[index].deskripsi_game
+                    deskripsi: data[index].deskripsi_game,
+                    created_by: {
+                        id_user: data[index].id_user,
+                        name: data[index].name,
+                        avatar: data[index].avatar
+                    }
                 })
                 if (dataTemp.length >= 30 || index+1 >= data.length) {
                     dataFinal.push(dataTemp)

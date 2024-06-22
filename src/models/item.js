@@ -2,10 +2,10 @@ const dbConnection = require('../config/database');
 
 const getAllItem = (filter)=> {
     if (filter != '') {
-        const query =  `SELECT * FROM tbl_barang WHERE jenis_barang = '${filter}'`;
+        const query =  `SELECT * FROM tbl_barang INNER JOIN tbl_user ON tbl_user.id_user = tbl_barang.id_user WHERE jenis_barang = '${filter}'`;
         return dbConnection.execute(query);
     } else {
-        const query =  `SELECT * FROM tbl_barang`;
+        const query =  `SELECT * FROM tbl_barang INNER JOIN tbl_user ON tbl_user.id_user = tbl_barang.id_user`;
         return dbConnection.execute(query);
     }
    
@@ -84,7 +84,7 @@ const getSearchItem = (itemName) => {
 }
 
 const getAllGame = () => {
-    const query = `SELECT * FROM tbl_game`
+    const query = `SELECT * FROM tbl_game INNER JOIN tbl_user ON tbl_game.id_user = tbl_user.id_user`
     return dbConnection.execute(query)
 }
 

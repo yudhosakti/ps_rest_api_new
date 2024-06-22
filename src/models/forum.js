@@ -1,7 +1,7 @@
 const dbConnection = require('../config/database');
 
 const getAllForum = ()=> {
-    const query  = `SELECT * FROM tbl_forum`;
+    const query  = `SELECT * FROM tbl_forum INNER JOIN tbl_user ON tbl_forum.id_user = tbl_user.id_user`;
     return dbConnection.execute(query);
 }
 

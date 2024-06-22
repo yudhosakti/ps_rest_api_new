@@ -17,7 +17,12 @@ const getAllForum = async(req,response)=> {
                 image: data[index].forum_image,
                 deskripsi: data[index].deskripsi,
                 last_message: data[index].last_message,
-                create_at: globalFunction.formatTanggal(data[index].create_at)
+                create_at: globalFunction.formatTanggal(data[index].create_at),
+                created_by: {
+                    id_user: data[index].id_user,
+                    name: data[index].name,
+                    avatar: data[index].avatar
+                }
             });
             if (dataTemp.length == 25 || index+1 >= data.length) {
                 dataFinal.push(dataTemp);
