@@ -71,6 +71,16 @@ const getSingleMessageForum = (id_discussion) => {
     return dbConnection.execute(query)
 }
 
+const sendMessageRealtimeForum = (id_forum,id_user,message,image) => {
+    if (image == '') {
+        const query = `CALL sendMessageForumRealtime(${id_forum},${id_user},'${message}');`
+        return dbConnection.execute(query);
+    } else {
+        const query = `CALL sendMessageImageRealtime(${id_forum},${id_user},'${message}','${image}');`
+        return dbConnection.execute(query);
+    }
+}
+
 
 
 module.exports = {
@@ -83,5 +93,6 @@ module.exports = {
     createMessageForum,
     updateMessageForum,
     deleteMessageForum,
-    getSingleMessageForum
+    getSingleMessageForum,
+    sendMessageRealtimeForum
 }

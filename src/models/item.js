@@ -47,7 +47,7 @@ const deleteItem = (id) => {
     return dbConnection.execute(query);
 }
 
-const updateItem = (id,name,image,tipe,deskripsi,stock,harga) => {
+const updateItem = (id,name,image,tipe,deskripsi,harga) => {
     if (image == '') {
         const query =  `UPDATE tbl_barang SET nama_barang='${name}',jenis_barang='${tipe}',deskripsi_barang='${deskripsi}',harga_sewa=${harga} WHERE tbl_barang.id_barang=${id}`;
     return dbConnection.execute(query);

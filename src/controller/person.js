@@ -91,32 +91,71 @@ const getRentPsSingleUser = async (req,response)=> {
         let penyewaan = []
         let tempData = []
         let idUser = ''
+        let idTransaksi = ''
         for (let index = 0; index < data.length; index++) {
-            idUser = data[index].id_user;
-            if (!tempData.includes(idUser)) {
-                tempData.push(idUser);
-                for (let index = 0; index < data.length; index++) {
-                   penyewaan.push({
-                     id_sewa: data[index].sewa,
-                     id_barang: data[index].id_barang,
-                     nama_barang: data[index].nama_barang,
-                     gambar: data[index].gambar_barang,
-                     status: data[index].status,
-                     tanggal_sewa: globalFunction.formatTanggal(data[index].tanggal_sewa) ,
-                     tanggal_kembali: globalFunction.formatTanggal(data[index].tanggal_kembali) ,
-                     harga: globalFunction.rentPriceCalculate(data[index].tanggal_kembali,data[index].tanggal_sewa,data[index].harga_sewa)
-                   })
+            if (idTransaksi == '') {
+                idTransaksi = data[index].id_transaksi
+            }
+            
+            if (data[index].id_transaksi != idTransaksi) {
+                tempData.push({
+                    id_sewa: data[index-1].id_sewa,
+                    id_transaksi: data[index-1].id_transaksi,
+                    status: data[index].status,
+                    tanggal_sewa: globalFunction.formatTanggal(data[index-1].tanggal_sewa),
+                    tanggal_kembali: globalFunction.formatTanggal(data[index-1].tanggal_kembali),
+                    harga: globalFunction.rentPriceCalculate(data[index-1].tanggal_kembali,data[index-1].tanggal_sewa,data[index-1].harga_sewa),
+                    sewa: penyewaan
+                })
+                penyewaan = []
+                penyewaan.push({
+                    id_barang: data[index].id_barang,
+                    name: data[index].nama_barang,
+                    image:data[index].gambar_barang,
+                    quantity: data[index].quantity
+                })
+                if (index+1 == data.length) {
+                    tempData.push({
+                    id_sewa: data[index].id_sewa,
+                    id_transaksi: data[index].id_transaksi,
+                    status: data[index].status,
+                    tanggal_sewa: globalFunction.formatTanggal(data[index].tanggal_sewa),
+                    tanggal_kembali: globalFunction.formatTanggal(data[index].tanggal_kembali),
+                    harga: globalFunction.rentPriceCalculate(data[index].tanggal_kembali,data[index].tanggal_sewa,data[index].harga_sewa),
+                    sewa: penyewaan
+                    })
                 }
+                idTransaksi = data[index].id_transaksi
                 
-            }    
-        }
-        dataResponse = {
-            id_user: data[0].id_user,
-            nama_user: data[0].name,
-            sewa : penyewaan
+            }else if(index+1 == data.length){
+                penyewaan.push({
+                    id_barang: data[index].id_barang,
+                    name: data[index].nama_barang,
+                    image:data[index].gambar_barang,
+                    quantity: data[index].quantity
+                })
+                tempData.push({
+                    id_sewa: data[index].id_sewa,
+                    id_transaksi: data[index].id_transaksi,
+                    status: data[index].status,
+                    tanggal_sewa: globalFunction.formatTanggal(data[index].tanggal_sewa),
+                    tanggal_kembali: globalFunction.formatTanggal(data[index].tanggal_kembali),
+                    harga: globalFunction.rentPriceCalculate(data[index].tanggal_kembali,data[index-1].tanggal_sewa,data[index-1].harga_sewa),
+                    sewa: penyewaan
+                })
+
+            }
+            else{
+                penyewaan.push({
+                    id_barang: data[index].id_barang,
+                    name: data[index].nama_barang,
+                    image:data[index].gambar_barang,
+                    quantity: data[index].quantity
+                })
+            }   
         }
         response.json({
-            data: dataResponse
+            data: tempData
         })
         }
         

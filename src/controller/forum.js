@@ -107,6 +107,7 @@ const getAllChatSingleForum = async(req,response) => {
         } else {
             for (let index = 0; index < data.length; index++) {
                 chatData.push({
+                    id_forum:data[index].id_forum,
                     id_chat: data[index].id_discussion,
                     id_user: data[index].id_user,
                     name: data[index].name,

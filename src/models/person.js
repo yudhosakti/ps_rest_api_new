@@ -17,7 +17,7 @@ const getAllUser = (filter)=> {
  }
 
  const getRentPsSingleUser = (uid) => {
-    const query = `SELECT *FROM tbl_penyewaan INNER JOIN tbl_user ON tbl_penyewaan.id_user=tbl_user.id_user INNER JOIN tbl_barang ON tbl_penyewaan.id_barang=tbl_barang.id_barang WHERE tbl_penyewaan.id_user=${uid};`
+    const query = `SELECT * FROM tbl_penyewaan INNER JOIN tbl_barang_sewa ON tbl_penyewaan.id_sewa = tbl_barang_sewa.id_sewa INNER JOIN tbl_barang ON tbl_barang.id_barang = tbl_barang_sewa.id_barang WHERE tbl_penyewaan.id_user = ${uid} ORDER BY tbl_penyewaan.id_sewa`
     return dbConnection.execute(query);
  }
 

@@ -52,6 +52,11 @@ const createGroupWithProcedure =(id_receiver,id_sender,pesan,waktu,memberTime) =
     return dbConnection.execute(query)
 }
 
+const sendMessageCsRealtime = (id_cs,id_member,pesan) => {
+    const query = `CALL sendMessageCs(${id_cs},${id_member},'${pesan}')`
+    return dbConnection.execute(query)
+}
+
 module.exports = {
     getAllGroup,
     getAllGroupBySingleId,
@@ -62,7 +67,8 @@ module.exports = {
     updateMessage,
     createMemberGroup,
     getSingleMember,
-    createGroupWithProcedure
+    createGroupWithProcedure,
+    sendMessageCsRealtime
 }
 
 

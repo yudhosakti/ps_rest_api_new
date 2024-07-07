@@ -452,10 +452,10 @@ const getAllGame = async(req,response) => {
 }
 
 const getSearchGame = async(req,response) => {
-    const dataInsert = req.body
+    const dataInsert = req.query.search_game
     let dataFinal = []
     try {
-        const [data] = await itemModel.getSearchGame(dataInsert.search_game)
+        const [data] = await itemModel.getSearchGame(dataInsert)
         if (data.length == 0) {
             response.status(404).json({
                 message: "Data Not Found"
@@ -483,10 +483,10 @@ const getSearchGame = async(req,response) => {
 }
 
 const getAllGameByIdItem = async(req,response) => {
-    const dataInsert = req.body
+    const dataInsert = req.query.id_barang
     let dataFinal = []
     try {
-        const [data] = await itemModel.getAllGameByIdItem(dataInsert.id_barang)
+        const [data] = await itemModel.getAllGameByIdItem(dataInsert)
         if (data.length == 0) {
             response.status(404).json({
                 message: "Data Not Found"
@@ -550,10 +550,10 @@ const getSingleGame = async(req,response) => {
 }
 
 const getDetailGame =async (req,response) => {
-   const dataInsert = req.body
+   const dataInsert = req.query.id_game
 
    try {
-    const [data] = await itemModel.getDetailGameById(dataInsert.id_game)
+    const [data] = await itemModel.getDetailGameById(dataInsert)
     let itemList = []
     if (data.length == 0) {
         response.status(404).json({
@@ -766,9 +766,10 @@ const deletePSGame = async(req,response) => {
 }
 
 const getSearchItem = async(req,response)=> {
-    const dataInsert = req.body
+    const dataInsert = req.query.item_name
+    console.log(dataInsert)
     try {
-        const [data] = await itemModel.getSearchItem(dataInsert.item_name)
+        const [data] = await itemModel.getSearchItem(dataInsert)
         let dataFinal = []
         if (data.length == 0) {
             response.status(404).json({

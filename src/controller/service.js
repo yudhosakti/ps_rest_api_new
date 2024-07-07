@@ -7,7 +7,7 @@ const getAllGroup = async(req,response) => {
    try {
     const [data] = await serviceModel.getAllGroupBySingleId(id)
     if (data.length == 0) {
-        response.json({
+        response.status(404).json({
             message: "Data Not Found"
         })
     } else {
@@ -30,20 +30,18 @@ const getAllMessageSingleGroup = async(req,response) => {
     try {
         const [data] = await serviceModel.getAllMessageSingleGroup(id)
         if (data.length == 0) {
-            response.json({
+            response.status(404).json({
                 message: "Data Not Found"
             })
         } else {
             let dataFinal = []
             for (let index = 0; index < data.length; index++) {
                 dataFinal.push({
-                    id_chat: data[index].id_chat,
-                    user: {
-                        id_user: data[index].id_user,
-                       name: data[index].name,
-                       avatar: data[index].avatar,
-                       role: data[index].role,
-                    },
+                    id_cs: data[index].id_cs,
+                    id_member: data[index].id_member,
+                    id_user: data[index].id_user,
+                    name: data[index].name,
+                    avatar: data[index].avatar,
                     message: data[index].message,
                     send_at: globlFunction.formatTanggalPesan(data[index].send_at) 
                 })

@@ -242,129 +242,139 @@ const getPaymentDetail = async(req,response) => {
 
 const createPaymentMultipleItem = async(req,response) => {
     const dataInsert = req.body
-
-    try {
-        let dataBarangFinal = []
-        let message = ''
-        Promise.all(dataInsert.data.map(async element => {
-            console.log(element)
-            try {
-            const [data] = await itemModel.getSingleItem(element.id_item)
-            dataBarangFinal.push({
-                id: data[0].id_barang,
-                name: data[0].nama_barang,
-                harga: data[0].harga_sewa,
-                quantity: element.quantity,
-                total: data[0].harga_sewa * element.quantity * globalFunction.dayCalculated(dataInsert.tanggal_kembali,dataInsert.tanggal_sewa)
-            })
-            if (element.quantity > data[0].stock) {
-                 message = 'error'
-                }
-                
-            } catch (error) {
-               message = 'error'
-            }
-           
-        })).then(async()=> {
-            if (message == 'error') {
-                response.status(500).json({
-                    message: 'Invalid Stock'
+    const dateRent = new Date(dataInsert.tanggal_sewa)
+    const rentDateMidnight = new Date(dateRent.setHours(0, 0, 0, 0));
+    const nowMidnight = new Date();
+    nowMidnight.setHours(0, 0, 0, 0);
+    if ( rentDateMidnight < nowMidnight ) {
+        response.status(500).json({
+            message: "Rent Date Already Past"
+        })
+    }else{
+        try {
+            let dataBarangFinal = []
+            let message = ''
+            Promise.all(dataInsert.data.map(async element => {
+                console.log(element)
+                try {
+                const [data] = await itemModel.getSingleItem(element.id_item)
+                dataBarangFinal.push({
+                    id: data[0].id_barang,
+                    name: data[0].nama_barang,
+                    harga: data[0].harga_sewa,
+                    quantity: element.quantity,
+                    total: data[0].harga_sewa * element.quantity * globalFunction.dayCalculated(dataInsert.tanggal_kembali,dataInsert.tanggal_sewa)
                 })
-            } else {
-            let finalHarga = 0
-            let finalItem = []
-            const [dataUser] = await personModel.getSingleUser(dataInsert.id_user)
-            if (dataUser.length == 0) {
-                response.status(404).json({
-                    message: "User Not Found"
-                })
-            } else {
-                console.log(dataBarangFinal)
-                for (let index = 0; index < dataBarangFinal.length; index++) {
-                    finalHarga+=dataBarangFinal[index].total
-                    finalItem.push({
-                        name: dataBarangFinal[index].name,
-                       price : dataBarangFinal[index].harga *globalFunction.dayCalculated(dataInsert.tanggal_kembali,dataInsert.tanggal_sewa) ,
-                       quantity: dataBarangFinal[index].quantity,
-                       brand: `${dataBarangFinal[index].id}`
-                    })
-                    
-                }
-               const trId = `RC-${uuidv4().replace(/-/g, '').substring(0, 12)}`
-            
-            const url = 'https://api.sandbox.midtrans.com/v1/payment-links';
-            const audUrl = 'SB-Mid-server-ldx8Nh1i6hFDEBRbTmRmWUF6'
-            const midtransServerKey = Buffer.from(`${audUrl}:`).toString('base64');
-          
-            const options = {
-                method: 'POST',
-                headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Basic ${midtransServerKey}`
-            },
-            body: JSON.stringify({
-                transaction_details: {order_id: trId, gross_amount: finalHarga},
-                item_details: finalItem,
-                customer_details :{
-                user_id: dataUser[0].id_user,
-                first_name: dataUser[0].name,
-                email: dataUser[0].email
-                },
-                custom_field1: globalFunction.formatTanggal(dataInsert.tanggal_sewa),
-                custom_field2:globalFunction.formatTanggal(dataInsert.tanggal_kembali)
-            })
-            }
-            const fetchResponse = await fetch(url, options);
-            const jsonResponse = await fetchResponse.json();
-            try {
-                await rentModel.createRentNewMultiple(dataUser[0].id_user,jsonResponse.order_id,globalFunction.formatTanggal(dataInsert.tanggal_sewa),globalFunction.formatTanggal(dataInsert.tanggal_kembali)).then(async()=>{
-                    const [data] = await rentModel.getSingleRentById(jsonResponse.order_id)
-                    if (data.length == 0) {
-                        response.status(404).json({
-                            message: "Terjadi Kesalahan"
-                        })
-                    } else {
-                        Promise.all(dataBarangFinal.map(async(element) => {
-                            await rentModel.createItemRentMultiple(element.id,data[0].id_sewa,element.quantity)
-                       })).then(async()=> {
-                        await rentModel.createRentLog(jsonResponse.order_id,dataUser[0].id_user,globalFunction.getDateNow()).then(()=> {
-                            response.json({
-                                message: "Create Rent Success Please Go to Payment Link To Complete Your Order",
-                                data: {
-                                    order_id: jsonResponse.order_id,
-                                    payment_link: jsonResponse.payment_url,
-                                    id_user: dataUser[0].id_user,
-                                    items: finalItem
-        
-                                }
-                              })
-                        })
-                          
-                       })
+                if (element.quantity > data[0].stock) {
+                     message = 'error'
                     }
                     
-                })
+                } catch (error) {
+                   message = 'error'
+                }
+               
+            })).then(async()=> {
+                if (message == 'error') {
+                    response.status(500).json({
+                        message: 'Invalid Stock'
+                    })
+                } else {
+                let finalHarga = 0
+                let finalItem = []
+                const [dataUser] = await personModel.getSingleUser(dataInsert.id_user)
+                if (dataUser.length == 0) {
+                    response.status(404).json({
+                        message: "User Not Found"
+                    })
+                } else {
+                    console.log(dataBarangFinal)
+                    for (let index = 0; index < dataBarangFinal.length; index++) {
+                        finalHarga+=dataBarangFinal[index].total
+                        finalItem.push({
+                            name: dataBarangFinal[index].name,
+                           price : dataBarangFinal[index].harga *globalFunction.dayCalculated(dataInsert.tanggal_kembali,dataInsert.tanggal_sewa) ,
+                           quantity: dataBarangFinal[index].quantity,
+                           brand: `${dataBarangFinal[index].id}`
+                        })
+                        
+                    }
+                   const trId = `RC-${uuidv4().replace(/-/g, '').substring(0, 12)}`
                 
-            } catch (error) {
-                response.status(500).json({
-                    message: error
-                }) 
+                const url = 'https://api.sandbox.midtrans.com/v1/payment-links';
+                const audUrl = 'SB-Mid-server-ldx8Nh1i6hFDEBRbTmRmWUF6'
+                const midtransServerKey = Buffer.from(`${audUrl}:`).toString('base64');
+              
+                const options = {
+                    method: 'POST',
+                    headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': `Basic ${midtransServerKey}`
+                },
+                body: JSON.stringify({
+                    transaction_details: {order_id: trId, gross_amount: finalHarga},
+                    item_details: finalItem,
+                    customer_details :{
+                    user_id: dataUser[0].id_user,
+                    first_name: dataUser[0].name,
+                    email: dataUser[0].email
+                    },
+                    custom_field1: globalFunction.formatTanggal(dataInsert.tanggal_sewa),
+                    custom_field2:globalFunction.formatTanggal(dataInsert.tanggal_kembali)
+                })
+                }
+                const fetchResponse = await fetch(url, options);
+                const jsonResponse = await fetchResponse.json();
+                try {
+                    await rentModel.createRentNewMultiple(dataUser[0].id_user,jsonResponse.order_id,globalFunction.formatTanggal(dataInsert.tanggal_sewa),globalFunction.formatTanggal(dataInsert.tanggal_kembali)).then(async()=>{
+                        const [data] = await rentModel.getSingleRentById(jsonResponse.order_id)
+                        if (data.length == 0) {
+                            response.status(404).json({
+                                message: "Terjadi Kesalahan"
+                            })
+                        } else {
+                            Promise.all(dataBarangFinal.map(async(element) => {
+                                await rentModel.createItemRentMultiple(element.id,data[0].id_sewa,element.quantity)
+                           })).then(async()=> {
+                            await rentModel.createRentLog(jsonResponse.order_id,dataUser[0].id_user,globalFunction.getDateNow()).then(()=> {
+                                response.json({
+                                    message: "Create Rent Success Please Go to Payment Link To Complete Your Order",
+                                    data: {
+                                        order_id: jsonResponse.order_id,
+                                        payment_link: jsonResponse.payment_url,
+                                        id_user: dataUser[0].id_user,
+                                        items: finalItem
+            
+                                    }
+                                  })
+                            })
+                              
+                           })
+                        }
+                        
+                    })
+                    
+                } catch (error) {
+                    response.status(500).json({
+                        message: error
+                    }) 
+                }
+                
+                
+    
             }
+                }
+                
+            })
+           
             
-            
-
+        } catch (error) {
+            response.status(500).json({
+                message: error
+            })
         }
-            }
-            
-        })
-       
-        
-    } catch (error) {
-        response.status(500).json({
-            message: error
-        })
     }
+    
     
 }
 
